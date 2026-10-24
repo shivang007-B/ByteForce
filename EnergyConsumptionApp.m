@@ -689,7 +689,7 @@ function varargout = EnergyConsumptionApp()
         'Title', '  Machine Learning Hyperparameter Controls  ', 'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridPipeCtrl = uigridlayout(pnlPipeCtrl, [10, 2]);
     gridPipeCtrl.ColumnWidth = {200, '1x'};
-    gridPipeCtrl.RowHeight = {32, 32, 32, 32, 32, 32, 32, 32, 1x, 44};
+    gridPipeCtrl.RowHeight = {32, 32, 32, 32, 32, 32, 32, 32, '1x', 44};
     gridPipeCtrl.Padding = [14, 10, 14, 10];
     gridPipeCtrl.RowSpacing = 6;
     gridPipeCtrl.BackgroundColor = C_BG_CARD;
