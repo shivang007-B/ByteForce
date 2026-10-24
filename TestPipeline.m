@@ -4,9 +4,8 @@
 % HOW TO USE
 %   >> TestPipeline
 %
-% Each test prints PASS or FAIL with a reason.
-% A final summary shows how many tests passed out of the total.
-% No external data files are needed — synthetic data is generated inline.
+% Each test prints PASS or FAIL. Final summary shows total pass/fail count.
+% No external data files needed — synthetic data is generated inline.
 
 clear; clc;
 addpath(pwd);
@@ -15,39 +14,12 @@ fprintf('=========================================================\n');
 fprintf('  CL-03 Pipeline Test Suite\n');
 fprintf('=========================================================\n\n');
 
-passed = 0;
-failed = 0;
-failLog = {};
-
-%% -----------------------------------------------------------------------
-%  Helper: run a test and record result
-%% -----------------------------------------------------------------------
-    function runTest(name, testFcn)
-        fprintf('%-55s', name);
-        try
-            msg = testFcn();
-            if isempty(msg)
-                fprintf('  PASS\n');
-                passed = passed + 1;
-            else
-                fprintf('  FAIL  (%s)\n', msg);
-                failed = failed + 1;
-                failLog{end+1} = sprintf('%s: %s', name, msg);
-            end
-        catch ME
-            fprintf('  FAIL  (ERROR: %s)\n', ME.message);
-            failed = failed + 1;
-            failLog{end+1} = sprintf('%s: %s', name, ME.message);
-        end
-    end
-
-%% -----------------------------------------------------------------------
-%  Build a small synthetic dataset used by all tests
-%% -----------------------------------------------------------------------
+%% -------------------------------------------------------------------
+%  Build synthetic dataset used by all tests
+%% -------------------------------------------------------------------
 rng(42);
 n = 400;
 
-% Numeric features
 buildingAge  = randi([1,50], n, 1);
 floorArea    = 200 + 3000*rand(n,1);
 temperature  = -5 + 35*rand(n,1);
@@ -57,18 +29,14 @@ insulRating  = randi([1,10], n,1);
 month        = randi([1,12], n,1);
 hour         = randi([0,23], n,1);
 
-% Categorical feature
-bTypes      = {'Office','Residential','Retail','Industrial','Education'};
+bTypes       = {'Office','Residential','Retail','Industrial','Education'};
 BuildingType = categorical(bTypes(randi(5,n,1))');
 
-% Target: realistic energy model with noise
 EUI = 50 + 0.3*buildingAge + 0.005*floorArea + ...
       max(0,temperature-18)*2 + max(0,15-temperature)*3 + ...
       -20*hvacEff - 3*insulRating + 8*randn(n,1);
 EUI = max(EUI, 5);
-
-% Introduce 5% missing target values (realistic)
-EUI(rand(n,1) < 0.05) = NaN;
+EUI(rand(n,1) < 0.05) = NaN;   % 5% missing target
 
 smallData = table(buildingAge, floorArea, temperature, humidity, ...
     hvacEff, insulRating, month, hour, BuildingType, EUI, ...
@@ -78,120 +46,446 @@ smallData = table(buildingAge, floorArea, temperature, humidity, ...
 
 fprintf('Synthetic dataset: %d rows x %d cols\n\n', height(smallData), width(smallData));
 
-%% -----------------------------------------------------------------------
-%  TEST GROUP 1: HelperDataPreprocessing
-%% -----------------------------------------------------------------------
-fprintf('--- Group 1: HelperDataPreprocessing ---\n');
-
-    runTest('Preprocessing runs without error', @() testPreprocessRuns(smallData));
-    runTest('Missing target rows removed', @() testMissingTargetRemoved(smallData));
-    runTest('Output is still a table', @() testOutputIsTable(smallData));
-    runTest('No NaN in numeric columns after preprocess', @() testNoNaN(smallData));
-    runTest('Row count reduced (outliers/missing removed)', @() testRowCountReduced(smallData));
-    runTest('Categorical column preserved', @() testCatPreserved(smallData));
-
-%% -----------------------------------------------------------------------
-%  TEST GROUP 2: BuildingRegressionModels — structure
-%% -----------------------------------------------------------------------
-fprintf('\n--- Group 2: BuildingRegressionModels (structure) ---\n');
-
-% Get clean data for model tests
-preOpts.TargetVar = 'OutputVar';
-preOpts.Verbose   = false;
-cleanData = HelperDataPreprocessing(smallData, preOpts);
+%% -------------------------------------------------------------------
+%  Shared options
+%% -------------------------------------------------------------------
+preOpts.TargetVar      = 'OutputVar';
+preOpts.RemoveCellCols = false;
+preOpts.OutlierMethod  = 'iqr';
+preOpts.IQRMultiplier  = 3.0;
+preOpts.ImputeMethod   = 'median';
+preOpts.Verbose        = false;
 
 mdlOpts.TargetVar    = 'OutputVar';
 mdlOpts.TestFraction = 0.25;
 mdlOpts.CVFolds      = 3;
-mdlOpts.NTreesRF     = 20;   % small for speed
+mdlOpts.NTreesRF     = 20;
 mdlOpts.NTreesGB     = 20;
 mdlOpts.LearnRateGB  = 0.1;
 mdlOpts.RunSVR       = false;
 mdlOpts.Verbose      = false;
 
-[TM, R] = BuildingRegressionModels(cleanData, mdlOpts);
+%% -------------------------------------------------------------------
+%  Pre-run preprocessing and model training once (shared by all tests)
+%% -------------------------------------------------------------------
+cleanData = HelperDataPreprocessing(smallData, preOpts);
+[TM, R]   = BuildingRegressionModels(cleanData, mdlOpts);
 
-    runTest('Returns trainedModels struct', @() checkStruct(TM));
-    runTest('Returns results struct',       @() checkStruct(R));
-    runTest('At least 3 models trained',    @() checkMinModels(R, 3));
-    runTest('results.modelNames populated', @() checkField(R,'modelNames'));
-    runTest('results.testRMSE populated',   @() checkField(R,'testRMSE'));
-    runTest('results.testR2 populated',     @() checkField(R,'testR2'));
-    runTest('results.cvRMSE populated',     @() checkField(R,'cvRMSE'));
-    runTest('results.bestModel set',        @() checkNonEmpty(R.bestModel));
-    runTest('results.bestPredictions set',  @() checkField(R,'bestPredictions'));
-    runTest('results.featureVars set',      @() checkField(R,'featureVars'));
-    runTest('results.trainData set',        @() checkField(R,'trainData'));
-    runTest('results.testData set',         @() checkField(R,'testData'));
-    runTest('results.retrofit set',         @() checkField(R,'retrofit'));
-    runTest('results.predictions struct',   @() checkField(R,'predictions'));
+%% -------------------------------------------------------------------
+%  Test runner — simple flat list, no nested functions
+%% -------------------------------------------------------------------
+passed  = 0;
+failed  = 0;
+failLog = {};
 
-%% -----------------------------------------------------------------------
-%  TEST GROUP 3: Model quality checks
-%% -----------------------------------------------------------------------
+function recordResult(name, msg)
+    % Not used — results accumulated directly below
+end
+
+% Macro: run one test, print result, accumulate counts
+% (Implemented as a local function at the bottom of the file)
+
+%% -------------------------------------------------------------------
+%  GROUP 1: HelperDataPreprocessing
+%% -------------------------------------------------------------------
+fprintf('--- Group 1: HelperDataPreprocessing ---\n');
+
+name = 'Preprocessing runs without error';
+try
+    out = HelperDataPreprocessing(smallData, preOpts);
+    if istable(out) && height(out) > 0
+        [passed, failed] = ok(name, passed, failed);
+    else
+        [passed, failed] = fail(name, 'returned empty or non-table', passed, failed, failLog);
+        failLog{end+1} = name;
+    end
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'Missing target rows removed';
+try
+    out = HelperDataPreprocessing(smallData, preOpts);
+    if any(isnan(out.OutputVar))
+        [passed, failed] = fail(name, 'NaN still in target', passed, failed, failLog);
+        failLog{end+1} = name;
+    else
+        [passed, failed] = ok(name, passed, failed);
+    end
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'Output is a table';
+try
+    out = HelperDataPreprocessing(smallData, preOpts);
+    if istable(out)
+        [passed, failed] = ok(name, passed, failed);
+    else
+        [passed, failed] = fail(name, 'not a table', passed, failed, failLog);
+        failLog{end+1} = name;
+    end
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'No NaN in numeric columns after preprocessing';
+try
+    out  = HelperDataPreprocessing(smallData, preOpts);
+    cols = out.Properties.VariableNames;
+    nanFound = false; badCol = '';
+    for ci = 1:numel(cols)
+        col = out.(cols{ci});
+        if isnumeric(col) && any(isnan(col))
+            nanFound = true; badCol = cols{ci}; break
+        end
+    end
+    if nanFound
+        [passed, failed] = fail(name, ['NaN in ' badCol], passed, failed, failLog);
+        failLog{end+1} = name;
+    else
+        [passed, failed] = ok(name, passed, failed);
+    end
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'Row count reduced (missing/outlier removal)';
+try
+    out = HelperDataPreprocessing(smallData, preOpts);
+    if height(out) < height(smallData)
+        [passed, failed] = ok(name, passed, failed);
+    else
+        [passed, failed] = fail(name, 'row count not reduced', passed, failed, failLog);
+        failLog{end+1} = name;
+    end
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'Categorical column preserved';
+try
+    out = HelperDataPreprocessing(smallData, preOpts);
+    if ismember('BuildingType', out.Properties.VariableNames) && ...
+            iscategorical(out.BuildingType)
+        [passed, failed] = ok(name, passed, failed);
+    else
+        [passed, failed] = fail(name, 'BuildingType missing or not categorical', passed, failed, failLog);
+        failLog{end+1} = name;
+    end
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+%% -------------------------------------------------------------------
+%  GROUP 2: BuildingRegressionModels — structure
+%% -------------------------------------------------------------------
+fprintf('\n--- Group 2: BuildingRegressionModels structure ---\n');
+
+name = 'Returns trainedModels struct';
+if isstruct(TM)
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'not a struct', passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'Returns results struct';
+if isstruct(R)
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'not a struct', passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'At least 3 models trained';
+if numel(R.modelNames) >= 3
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, sprintf('only %d models', numel(R.modelNames)), passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+fields_to_check = {'modelNames','testRMSE','testR2','cvRMSE', ...
+    'bestModel','bestPredictions','featureVars','trainData','testData','retrofit','predictions'};
+for fi = 1:numel(fields_to_check)
+    fname = fields_to_check{fi};
+    name  = ['results.' fname ' exists'];
+    if isfield(R, fname)
+        [passed, failed] = ok(name, passed, failed);
+    else
+        [passed, failed] = fail(name, 'field missing', passed, failed, failLog);
+        failLog{end+1} = name;
+    end
+end
+
+%% -------------------------------------------------------------------
+%  GROUP 3: Model quality
+%% -------------------------------------------------------------------
 fprintf('\n--- Group 3: Model quality ---\n');
 
-    runTest('All testRMSE values are positive',  @() checkPositive(R.testRMSE));
-    runTest('All testR2 values are in [0,1]',    @() checkR2Range(R.testR2));
-    runTest('All cvRMSE values are positive',    @() checkPositive(R.cvRMSE));
-    runTest('Train size + test size = total',    @() checkSplitSum(R, height(cleanData)));
-    runTest('Best model has lowest testRMSE',    @() checkBestModel(R));
-    runTest('Predictions length = test size',    @() checkPredLen(R));
-    runTest('No NaN in bestPredictions',         @() checkNoNaN(R.bestPredictions));
-    runTest('Test RMSE < 3x target std (sanity)',@() checkRMSESanity(R, cleanData));
+name = 'All testRMSE values are positive';
+if all(R.testRMSE(~isnan(R.testRMSE)) > 0)
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'non-positive RMSE found', passed, failed, failLog);
+    failLog{end+1} = name;
+end
 
-%% -----------------------------------------------------------------------
-%  TEST GROUP 4: Random Forest specific
-%% -----------------------------------------------------------------------
+name = 'All testR2 values in [0, 1]';
+r2vals = R.testR2(~isnan(R.testR2));
+if all(r2vals >= 0) && all(r2vals <= 1)
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, sprintf('range [%.2f, %.2f]', min(r2vals), max(r2vals)), passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'All cvRMSE values are positive';
+if all(R.cvRMSE(~isnan(R.cvRMSE)) > 0)
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'non-positive CV RMSE', passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'Train size + test size matches total';
+total = height(cleanData);
+if abs((R.trainSize + R.testSize) - total) <= 2
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, sprintf('%d+%d != %d', R.trainSize, R.testSize, total), passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'bestModel has lowest testRMSE';
+[~, bi] = min(R.testRMSE);
+if strcmp(R.bestModel, R.modelNames{bi})
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, sprintf('bestModel=%s, min is %s', R.bestModel, R.modelNames{bi}), passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'bestPredictions length equals testSize';
+if numel(R.bestPredictions) == R.testSize
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, sprintf('length %d != testSize %d', numel(R.bestPredictions), R.testSize), passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'No NaN in bestPredictions';
+if ~any(isnan(R.bestPredictions))
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'NaN found in predictions', passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'Test RMSE < 3x target std (sanity check)';
+targetStd = std(cleanData.(R.targetVar), 'omitnan');
+[~, bii]  = min(R.testRMSE);
+if R.testRMSE(bii) < 3 * targetStd
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, sprintf('RMSE=%.2f > 3xStd=%.2f', R.testRMSE(bii), 3*targetStd), passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+%% -------------------------------------------------------------------
+%  GROUP 4: Random Forest
+%% -------------------------------------------------------------------
 fprintf('\n--- Group 4: Random Forest ---\n');
 
-    runTest('RandomForest trained',              @() checkFieldVal(TM,'RandomForest'));
-    runTest('Feature importance exists (RF)',    @() checkFeatImp(R,'RandomForest'));
-    runTest('Uncertainty struct exists',         @() checkField(R,'uncertainty'));
-    runTest('RF coverage95 is in (0,1]',         @() checkCoverage(R));
+name = 'RandomForest model trained';
+if isfield(TM, 'RandomForest') && ~isempty(TM.RandomForest)
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'TM.RandomForest missing or empty', passed, failed, failLog);
+    failLog{end+1} = name;
+end
 
-%% -----------------------------------------------------------------------
-%  TEST GROUP 5: Gradient Boosting
-%% -----------------------------------------------------------------------
+name = 'Feature importance exists (RandomForest)';
+if isfield(R, 'featureImportance') && isfield(R.featureImportance, 'RandomForest') && ...
+        any(R.featureImportance.RandomForest > 0)
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'importance missing or all zero', passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'Uncertainty struct exists';
+if isfield(R, 'uncertainty')
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'R.uncertainty missing', passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'RF coverage95 is in (0, 1]';
+if isfield(R, 'uncertainty') && isfield(R.uncertainty, 'RandomForest')
+    cov = R.uncertainty.RandomForest.coverage95;
+    if cov > 0 && cov <= 1
+        [passed, failed] = ok(name, passed, failed);
+    else
+        [passed, failed] = fail(name, sprintf('coverage=%.3f', cov), passed, failed, failLog);
+        failLog{end+1} = name;
+    end
+else
+    [passed, failed] = fail(name, 'uncertainty.RandomForest missing', passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+%% -------------------------------------------------------------------
+%  GROUP 5: Gradient Boosting
+%% -------------------------------------------------------------------
 fprintf('\n--- Group 5: Gradient Boosting ---\n');
 
-    runTest('GradientBoosting trained',          @() checkFieldVal(TM,'GradientBoosting'));
-    runTest('Feature importance exists (GB)',    @() checkFeatImp(R,'GradientBoosting'));
+name = 'GradientBoosting model trained';
+if isfield(TM, 'GradientBoosting') && ~isempty(TM.GradientBoosting)
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'TM.GradientBoosting missing', passed, failed, failLog);
+    failLog{end+1} = name;
+end
 
-%% -----------------------------------------------------------------------
-%  TEST GROUP 6: Retrofit analysis
-%% -----------------------------------------------------------------------
+name = 'Feature importance exists (GradientBoosting)';
+if isfield(R, 'featureImportance') && isfield(R.featureImportance, 'GradientBoosting') && ...
+        any(R.featureImportance.GradientBoosting > 0)
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'importance missing or all zero', passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+%% -------------------------------------------------------------------
+%  GROUP 6: Retrofit analysis
+%% -------------------------------------------------------------------
 fprintf('\n--- Group 6: Retrofit analysis ---\n');
 
-    runTest('retrofit.excessConsumption set',    @() checkField(R.retrofit,'excessConsumption'));
-    runTest('retrofit.score set',               @() checkField(R.retrofit,'score'));
-    runTest('retrofit.candidateFlag set',       @() checkField(R.retrofit,'candidateFlag'));
-    runTest('nCandidates is non-negative',      @() checkNonNeg(R.retrofit.nCandidates));
-    runTest('Excess length = test size',        @() checkExcLen(R));
+name = 'retrofit.excessConsumption exists';
+if isfield(R.retrofit, 'excessConsumption')
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'field missing', passed, failed, failLog);
+    failLog{end+1} = name;
+end
 
-retrofitTable = HelperRetrofitAnalysis(R, cleanData);
-    runTest('HelperRetrofitAnalysis returns table',  @() checkIsTable(retrofitTable));
-    runTest('retrofitTable has Rank column',         @() checkTableCol(retrofitTable,'Rank'));
-    runTest('retrofitTable has ExcessEUI column',    @() checkTableCol(retrofitTable,'ExcessEUI'));
-    runTest('retrofitTable has WasteSeverity column',@() checkTableCol(retrofitTable,'WasteSeverity'));
-    runTest('retrofitTable rows = test size',        @() checkTableRows(retrofitTable, R.testSize));
+name = 'retrofit.score exists';
+if isfield(R.retrofit, 'score')
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'field missing', passed, failed, failLog);
+    failLog{end+1} = name;
+end
 
-%% -----------------------------------------------------------------------
-%  TEST GROUP 7: Helper functions smoke tests
-%% -----------------------------------------------------------------------
+name = 'retrofit.candidateFlag exists';
+if isfield(R.retrofit, 'candidateFlag')
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'field missing', passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'nCandidates is non-negative';
+if isfield(R.retrofit, 'nCandidates') && R.retrofit.nCandidates >= 0
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, 'negative or missing', passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'excessConsumption length equals testSize';
+if numel(R.retrofit.excessConsumption) == R.testSize
+    [passed, failed] = ok(name, passed, failed);
+else
+    [passed, failed] = fail(name, sprintf('length %d != testSize %d', ...
+        numel(R.retrofit.excessConsumption), R.testSize), passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'HelperRetrofitAnalysis returns a table';
+try
+    rt = HelperRetrofitAnalysis(R, cleanData);
+    if istable(rt) && height(rt) > 0
+        [passed, failed] = ok(name, passed, failed);
+    else
+        [passed, failed] = fail(name, 'empty or not a table', passed, failed, failLog);
+        failLog{end+1} = name;
+    end
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'retrofitTable has required columns';
+try
+    rt   = HelperRetrofitAnalysis(R, cleanData);
+    reqC = {'Rank','ExcessEUI','WasteSeverity','PotentialSaving'};
+    miss = reqC(~ismember(reqC, rt.Properties.VariableNames));
+    if isempty(miss)
+        [passed, failed] = ok(name, passed, failed);
+    else
+        [passed, failed] = fail(name, ['missing: ' strjoin(miss,',')], passed, failed, failLog);
+        failLog{end+1} = name;
+    end
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+name = 'retrofitTable rows equal testSize';
+try
+    rt = HelperRetrofitAnalysis(R, cleanData);
+    if height(rt) == R.testSize
+        [passed, failed] = ok(name, passed, failed);
+    else
+        [passed, failed] = fail(name, sprintf('%d rows != testSize %d', height(rt), R.testSize), passed, failed, failLog);
+        failLog{end+1} = name;
+    end
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+%% -------------------------------------------------------------------
+%  GROUP 7: Helper functions smoke tests
+%% -------------------------------------------------------------------
 fprintf('\n--- Group 7: Helper functions ---\n');
 
-    runTest('HelperAnalyzeResults runs without error', @() testAnalyze(R));
-    runTest('HelperVisualize runs without error',      @() testVisualize(R, cleanData));
+name = 'HelperAnalyzeResults runs without error';
+try
+    HelperAnalyzeResults(R);
+    [passed, failed] = ok(name, passed, failed);
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
 
-%% -----------------------------------------------------------------------
+name = 'HelperVisualize runs without error';
+try
+    HelperVisualize(R, cleanData);
+    [passed, failed] = ok(name, passed, failed);
+catch ME
+    [passed, failed] = fail(name, ME.message, passed, failed, failLog);
+    failLog{end+1} = name;
+end
+
+%% -------------------------------------------------------------------
 %  FINAL SUMMARY
-%% -----------------------------------------------------------------------
+%% -------------------------------------------------------------------
 total = passed + failed;
 fprintf('\n=========================================================\n');
 fprintf('  TEST RESULTS:  %d / %d passed\n', passed, total);
 if failed == 0
-    fprintf('  *** ALL TESTS PASSED — pipeline is working correctly ***\n');
+    fprintf('  ALL TESTS PASSED — pipeline is working correctly\n');
 else
     fprintf('  %d test(s) FAILED:\n', failed);
     for i = 1:numel(failLog)
@@ -200,178 +494,20 @@ else
 end
 fprintf('=========================================================\n');
 
-% Close figures generated during visualise test
-close all;
+% Figures stay open for inspection
+% Run: close all   in the Command Window when you are done viewing them
 
 
-%% =======================================================================
-%%  TEST IMPLEMENTATION FUNCTIONS
-%% =======================================================================
+%% ===================================================================
+%%  LOCAL FUNCTIONS  (must be at the bottom of the script file)
+%% ===================================================================
 
-function msg = testPreprocessRuns(data)
-    opts.TargetVar = 'OutputVar'; opts.Verbose = false;
-    out = HelperDataPreprocessing(data, opts);
-    if istable(out) && height(out) > 0, msg = ''; else, msg = 'returned empty or non-table'; end
+function [p, f] = ok(name, p, f)
+    fprintf('  %-55s  PASS\n', name);
+    p = p + 1;
 end
 
-function msg = testMissingTargetRemoved(data)
-    opts.TargetVar = 'OutputVar'; opts.Verbose = false;
-    out = HelperDataPreprocessing(data, opts);
-    if any(isnan(out.OutputVar)), msg = 'NaN still present in target';
-    else, msg = ''; end
-end
-
-function msg = testOutputIsTable(data)
-    opts.TargetVar = 'OutputVar'; opts.Verbose = false;
-    out = HelperDataPreprocessing(data, opts);
-    if istable(out), msg = ''; else, msg = 'not a table'; end
-end
-
-function msg = testNoNaN(data)
-    opts.TargetVar = 'OutputVar'; opts.Verbose = false;
-    out = HelperDataPreprocessing(data, opts);
-    cols = out.Properties.VariableNames;
-    for c = 1:numel(cols)
-        col = out.(cols{c});
-        if isnumeric(col) && any(isnan(col))
-            msg = sprintf('NaN found in column %s', cols{c}); return
-        end
-    end
-    msg = '';
-end
-
-function msg = testRowCountReduced(data)
-    opts.TargetVar = 'OutputVar'; opts.Verbose = false;
-    out = HelperDataPreprocessing(data, opts);
-    if height(out) < height(data), msg = '';
-    else, msg = 'row count not reduced (expected missing/outlier removal)'; end
-end
-
-function msg = testCatPreserved(data)
-    opts.TargetVar = 'OutputVar'; opts.Verbose = false;
-    out = HelperDataPreprocessing(data, opts);
-    if ismember('BuildingType', out.Properties.VariableNames)
-        if iscategorical(out.BuildingType), msg = '';
-        else, msg = 'BuildingType not categorical'; end
-    else
-        msg = 'BuildingType column missing';
-    end
-end
-
-function msg = checkStruct(s)
-    if isstruct(s), msg = ''; else, msg = 'not a struct'; end
-end
-
-function msg = checkMinModels(R, minN)
-    if numel(R.modelNames) >= minN, msg = '';
-    else, msg = sprintf('only %d models trained', numel(R.modelNames)); end
-end
-
-function msg = checkField(s, f)
-    if isfield(s, f), msg = ''; else, msg = sprintf('field .%s missing', f); end
-end
-
-function msg = checkNonEmpty(val)
-    if ~isempty(val), msg = ''; else, msg = 'is empty'; end
-end
-
-function msg = checkPositive(vec)
-    if all(vec(~isnan(vec)) > 0), msg = '';
-    else, msg = 'contains non-positive values'; end
-end
-
-function msg = checkR2Range(vec)
-    if all(vec(~isnan(vec)) >= 0 & vec(~isnan(vec)) <= 1), msg = '';
-    else, msg = sprintf('R2 out of [0,1]: min=%.3f max=%.3f', min(vec), max(vec)); end
-end
-
-function msg = checkSplitSum(R, total)
-    s = R.trainSize + R.testSize;
-    if abs(s - total) <= 2, msg = '';   % allow ±2 for rounding
-    else, msg = sprintf('train(%d)+test(%d)=%d != total(%d)', ...
-        R.trainSize, R.testSize, s, total); end
-end
-
-function msg = checkBestModel(R)
-    [~,bi] = min(R.testRMSE);
-    if strcmp(R.bestModel, R.modelNames{bi}), msg = '';
-    else, msg = sprintf('bestModel=%s but min RMSE is %s', ...
-        R.bestModel, R.modelNames{bi}); end
-end
-
-function msg = checkPredLen(R)
-    n = numel(R.bestPredictions);
-    if n == R.testSize, msg = '';
-    else, msg = sprintf('predictions length %d != testSize %d', n, R.testSize); end
-end
-
-function msg = checkNoNaN(vec)
-    if ~any(isnan(vec)), msg = ''; else, msg = 'contains NaN'; end
-end
-
-function msg = checkRMSESanity(R, data)
-    targetStd = std(data.(R.targetVar), 'omitnan');
-    [~,bi] = min(R.testRMSE);
-    if R.testRMSE(bi) < 3 * targetStd, msg = '';
-    else, msg = sprintf('best RMSE=%.3f > 3x std=%.3f (model likely broken)', ...
-        R.testRMSE(bi), targetStd); end
-end
-
-function msg = checkFieldVal(s, f)
-    if isfield(s,f) && ~isempty(s.(f)), msg = '';
-    else, msg = sprintf('field .%s missing or empty', f); end
-end
-
-function msg = checkFeatImp(R, mdlName)
-    if isfield(R,'featureImportance') && isfield(R.featureImportance, mdlName)
-        imp = R.featureImportance.(mdlName);
-        if ~isempty(imp) && any(imp > 0), msg = '';
-        else, msg = 'importance vector empty or all zero'; end
-    else
-        msg = sprintf('featureImportance.%s not found', mdlName);
-    end
-end
-
-function msg = checkCoverage(R)
-    if isfield(R,'uncertainty') && isfield(R.uncertainty,'RandomForest')
-        c = R.uncertainty.RandomForest.coverage95;
-        if c > 0 && c <= 1, msg = '';
-        else, msg = sprintf('coverage95=%.3f out of (0,1]', c); end
-    else
-        msg = 'uncertainty.RandomForest not found';
-    end
-end
-
-function msg = checkNonNeg(val)
-    if val >= 0, msg = ''; else, msg = 'negative value'; end
-end
-
-function msg = checkExcLen(R)
-    n = numel(R.retrofit.excessConsumption);
-    if n == R.testSize, msg = '';
-    else, msg = sprintf('excess length %d != testSize %d', n, R.testSize); end
-end
-
-function msg = checkIsTable(t)
-    if istable(t) && height(t) > 0, msg = ''; else, msg = 'not a table or empty'; end
-end
-
-function msg = checkTableCol(t, col)
-    if ismember(col, t.Properties.VariableNames), msg = '';
-    else, msg = sprintf('column %s missing', col); end
-end
-
-function msg = checkTableRows(t, expected)
-    if height(t) == expected, msg = '';
-    else, msg = sprintf('has %d rows, expected %d', height(t), expected); end
-end
-
-function msg = testAnalyze(R)
-    HelperAnalyzeResults(R);
-    msg = '';
-end
-
-function msg = testVisualize(R, data)
-    HelperVisualize(R, data);
-    msg = '';
+function [p, f] = fail(name, reason, p, f, ~)
+    fprintf('  %-55s  FAIL  (%s)\n', name, reason);
+    f = f + 1;
 end
