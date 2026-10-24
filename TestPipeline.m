@@ -494,7 +494,8 @@ else
 end
 fprintf('=========================================================\n');
 
-close all;
+% Figures stay open for inspection
+% Run: close all   in the Command Window when you are done viewing them
 
 
 %% ===================================================================

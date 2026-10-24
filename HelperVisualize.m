@@ -54,6 +54,7 @@ ylabel('MAE'); title('MAE: Train vs Test')
 legend('Train','Test','Location','best'); grid on; box off
 
 sgtitle('Model Performance Comparison','FontSize',13,'FontWeight','bold')
+drawnow;
 
 %% ----------------------------------------------------------------
 %  Figure 2: Cross-Validation RMSE
@@ -70,10 +71,7 @@ if isfield(results,'cvRMSE') && ~isempty(results.cvRMSE)
     ylabel('RMSE'); title('Cross-Validation RMSE vs Test RMSE')
     legend('CV mean ± std','Test RMSE','Location','best')
     grid on; box off
-end
-
-%% ----------------------------------------------------------------
-%  Figure 3: Target Distribution
+    drawnow;
 %% ----------------------------------------------------------------
 figure('Name','Target Distribution','NumberTitle','off','Position',[800 40 920 420])
 
@@ -105,6 +103,7 @@ else
     title('Q-Q Plot of Target Variable')
 end
 sgtitle('Target Variable Overview','FontSize',13,'FontWeight','bold')
+drawnow;
 
 %% ----------------------------------------------------------------
 %  Figure 4: Predicted vs Actual (best model) + uncertainty band
@@ -144,6 +143,7 @@ text(0.04,0.93,sprintf('R^2 = %.4f\nRMSE = %.3f',r2val,rmse), ...
     'Units','normalized','FontSize',11,'FontWeight','bold', ...
     'BackgroundColor','w','EdgeColor',[0.7 0.7 0.7])
 grid on; box off; axis square
+drawnow;
 
 %% ----------------------------------------------------------------
 %  Figure 5: Residual Analysis
@@ -177,6 +177,7 @@ end
 
 sgtitle(sprintf('Residual Analysis — %s',results.bestModel), ...
     'FontSize',13,'FontWeight','bold')
+drawnow;
 
 %% ----------------------------------------------------------------
 %  Figure 6: Feature Importance
@@ -288,7 +289,15 @@ if isfield(results,'uncertainty') && ...
     grid on; box off
 end
 
-fprintf('Visualisations complete (%d figures).\n', ...
-    5 + ~isempty(impField) + isfield(results,'retrofit') + ...
-    (isfield(results,'uncertainty') && isfield(results.uncertainty,'RandomForest')));
+% Force all figures to render fully before the function returns.
+% This prevents MATLAB Online from closing figures before they are visible.
+drawnow;
+
+% Keep figures open — do NOT call close all here.
+% To close manually in the Command Window run:  close all
+
+nFigs = 5 + ~isempty(impField) + isfield(results,'retrofit') + ...
+    (isfield(results,'uncertainty') && isfield(results.uncertainty,'RandomForest'));
+fprintf('Visualisations complete (%d figures open).\n', nFigs);
+fprintf('To close all figures later run:  close all\n');
 end
