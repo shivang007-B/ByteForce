@@ -140,11 +140,12 @@ function varargout = Gigawatt()
     rbModeB = uiradiobutton(bgModeInner, 'Text', 'Mode B: New Building', ...
         'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
 
-    lblSelBldg = uilabel(leftGrid, 'Text', 'Select Known Building ID:', ...
+    lblSelBldg = uilabel(leftGrid, 'Text', 'Building ID  (1 to 1000):', ...
         'FontColor', C_CYBER_GREEN, 'FontWeight', 'bold');
-    dropBldgId = uidropdown(leftGrid, 'Items', {'Loading...'}, ...
+    dropBldgId = uispinner(leftGrid, 'Value', 1, 'Limits', [1, 1000], ...
+        'Step', 1, 'RoundFractionalValues', 'on', ...
         'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT, ...
-        'ValueChangedFcn', @(s,~) onKnownBuildingSelected(s.Value));
+        'ValueChangedFcn', @(s,~) onBuildingIdChanged(s.Value));
 
     lblType = uilabel(leftGrid, 'Text', 'Building Classification:', ...
         'FontColor', C_TEXT_MUTED, 'FontSize', 11);
@@ -407,14 +408,11 @@ function varargout = Gigawatt()
     end
 
     function populateDropdown()
-        kd    = state.knownData;
-        n     = height(kd);
-        items = cell(n,1);
-        for i = 1:n
-            items{i} = sprintf('Building #%d (%s, %d m2)', ...
-                kd.BuildingID(i), string(kd.buildingType(i)), kd.floorArea(i));
+        kd = state.knownData;
+        if height(kd) > 0
+            dropBldgId.Limits = [1, height(kd)];
+            dropBldgId.Value  = 1;
         end
-        dropBldgId.Items = items;
     end
 
     function populateCandidateTable()
@@ -594,16 +592,17 @@ function varargout = Gigawatt()
         end
     end
 
+    function onBuildingIdChanged(val)
+        selectKnownBuilding(round(val));
+    end
+
     function onKnownBuildingSelected(val)
-        tok = regexp(val, '#(\d+)', 'tokens');
-        if ~isempty(tok)
-            selectKnownBuilding(str2double(tok{1}{1}));
-        end
+        selectKnownBuilding(round(val));
     end
 
     function onAnalyzeClicked()
         if rbModeA.Value
-            onKnownBuildingSelected(dropBldgId.Value);
+            selectKnownBuilding(round(dropBldgId.Value));
         else
             runNewBuildingPrediction();
         end
@@ -622,12 +621,7 @@ function varargout = Gigawatt()
         bId = cl.BuildingID(r);
         rbModeA.Value = true;
         onModeChanged('Mode A: Known Building');
-        for i = 1:numel(dropBldgId.Items)
-            if contains(dropBldgId.Items{i}, sprintf('#%d ', bId))
-                dropBldgId.Value = dropBldgId.Items{i};
-                break;
-            end
-        end
+        dropBldgId.Value = bId;
         selectKnownBuilding(bId);
         tabGroup.SelectedTab = tabAnalysis;
     end
