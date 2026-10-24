@@ -1,24 +1,22 @@
 %% RunApp.m
-% One-click launcher for the BYTEFORCE Building Energy Intelligence App.
-% Run this in MATLAB:
-%   >> RunApp
+% Launcher for the GIGAWATT Building Energy Intelligence Platform.
+% Conforms to the GIGAWATT Frontend & Backend Integration Guide.
 %
-% Features:
-%   - Checks environment and toolboxes
-%   - Adds current path
-%   - Launches EnergyConsumptionApp UI
+% Usage:
+%   >> RunApp
+%   >> Gigawatt
 
 clc;
 fprintf('=========================================================\n');
-fprintf('  BYTEFORCE // Building Energy Intelligence & Retrofit AI\n');
-fprintf('  Launching Cyber-Themed Frontend Command Center...\n');
+fprintf('  GIGAWATT | Building Energy Intelligence & Retrofit Screening\n');
+fprintf('  Launching App...\n');
 fprintf('=========================================================\n\n');
 
-% Add path
+% Ensure path is added
 currDir = fileparts(mfilename('fullpath'));
 if isempty(currDir), currDir = pwd; end
 addpath(currDir);
 
-% Launch App
-app = EnergyConsumptionApp();
-fprintf('App successfully launched! Enjoy exploring all maps & models.\n');
+% Launch Gigawatt App
+app = Gigawatt();
+fprintf('GIGAWATT App successfully launched.\n');
