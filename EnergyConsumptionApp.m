@@ -83,7 +83,7 @@ function varargout = EnergyConsumptionApp()
     headerPanel = uipanel(rootGrid, 'BackgroundColor', C_OXFORD_BLUE, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
     headerGrid = uigridlayout(headerPanel, [1, 5]);
-    headerGrid.ColumnWidth = {'45px', '1x', '180px', '160px', '160px'};
+    headerGrid.ColumnWidth = {45, '1x', 180, 160, 160};
     headerGrid.RowHeight = {'1x'};
     headerGrid.Padding = [14, 8, 14, 8];
     headerGrid.ColumnSpacing = 10;
@@ -95,7 +95,7 @@ function varargout = EnergyConsumptionApp()
 
     % Title and Subtitle container
     titleBox = uigridlayout(headerGrid, [2, 1]);
-    titleBox.RowHeight = {'26px', '18px'};
+    titleBox.RowHeight = {26, 18};
     titleBox.Padding = [0, 0, 0, 0];
     titleBox.RowSpacing = 2;
     titleBox.BackgroundColor = C_OXFORD_BLUE;
@@ -137,7 +137,7 @@ function varargout = EnergyConsumptionApp()
     kpi1Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
     kpi1Grid = uigridlayout(kpi1Card, [2, 1]);
-    kpi1Grid.RowHeight = {'18px', '38px'};
+    kpi1Grid.RowHeight = {18, 38};
     kpi1Grid.Padding = [10, 6, 10, 6];
     kpi1Grid.RowSpacing = 2;
     kpi1Grid.BackgroundColor = C_BG_CARD;
@@ -150,7 +150,7 @@ function varargout = EnergyConsumptionApp()
     kpi2Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
     kpi2Grid = uigridlayout(kpi2Card, [2, 1]);
-    kpi2Grid.RowHeight = {'18px', '38px'};
+    kpi2Grid.RowHeight = {18, 38};
     kpi2Grid.Padding = [10, 6, 10, 6];
     kpi2Grid.RowSpacing = 2;
     kpi2Grid.BackgroundColor = C_BG_CARD;
@@ -163,7 +163,7 @@ function varargout = EnergyConsumptionApp()
     kpi3Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
     kpi3Grid = uigridlayout(kpi3Card, [2, 1]);
-    kpi3Grid.RowHeight = {'18px', '38px'};
+    kpi3Grid.RowHeight = {18, 38};
     kpi3Grid.Padding = [10, 6, 10, 6];
     kpi3Grid.RowSpacing = 2;
     kpi3Grid.BackgroundColor = C_BG_CARD;
@@ -176,7 +176,7 @@ function varargout = EnergyConsumptionApp()
     kpi4Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
     kpi4Grid = uigridlayout(kpi4Card, [2, 1]);
-    kpi4Grid.RowHeight = {'18px', '38px'};
+    kpi4Grid.RowHeight = {18, 38};
     kpi4Grid.Padding = [10, 6, 10, 6];
     kpi4Grid.RowSpacing = 2;
     kpi4Grid.BackgroundColor = C_BG_CARD;
@@ -220,7 +220,7 @@ function varargout = EnergyConsumptionApp()
     statusBarPanel = uipanel(rootGrid, 'BackgroundColor', C_OXFORD_BLUE, ...
         'BorderType', 'none');
     statusBarGrid = uigridlayout(statusBarPanel, [1, 3]);
-    statusBarGrid.ColumnWidth = {'1x', '350px', '220px'};
+    statusBarGrid.ColumnWidth = {'1x', 350, 220};
     statusBarGrid.RowHeight = {'1x'};
     statusBarGrid.Padding = [12, 2, 12, 2];
     statusBarGrid.BackgroundColor = C_OXFORD_BLUE;
@@ -236,7 +236,7 @@ function varargout = EnergyConsumptionApp()
     %% TAB 1: 🗺️ MAPS & SPATIAL WASTE EXPLORER (With Scrollable Feature!)
     %% ====================================================================
     mapsRootGrid = uigridlayout(tabMaps, [2, 1]);
-    mapsRootGrid.RowHeight = {'42px', '1x'};
+    mapsRootGrid.RowHeight = {42, '1x'};
     mapsRootGrid.ColumnWidth = {'1x'};
     mapsRootGrid.Padding = [8, 6, 8, 6];
     mapsRootGrid.RowSpacing = 6;
@@ -246,7 +246,7 @@ function varargout = EnergyConsumptionApp()
     mapsToolBar = uipanel(mapsRootGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
     mapsToolGrid = uigridlayout(mapsToolBar, [1, 6]);
-    mapsToolGrid.ColumnWidth = {'180px', '220px', '160px', '180px', '1x', '130px'};
+    mapsToolGrid.ColumnWidth = {180, 220, 160, 180, '1x', 130};
     mapsToolGrid.RowHeight = {'1x'};
     mapsToolGrid.Padding = [10, 4, 10, 4];
     mapsToolGrid.ColumnSpacing = 8;
@@ -301,7 +301,7 @@ function varargout = EnergyConsumptionApp()
         'Title', '  MAP 1: GEOGRAPHIC / CAMPUS SITE ENERGY WASTE SPATIAL MAP (Cyber Green = Efficient, Red = Critical Waste)  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridMap1 = uigridlayout(cardMap1, [1, 2]);
-    gridMap1.ColumnWidth = {'1x', '320px'};
+    gridMap1.ColumnWidth = {'1x', 320};
     gridMap1.RowHeight = {'1x'};
     gridMap1.Padding = [10, 8, 10, 8];
     gridMap1.BackgroundColor = C_BG_CARD;
@@ -316,7 +316,7 @@ function varargout = EnergyConsumptionApp()
         'Title', '  SELECTED BUILDING INSPECTOR  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     map1InspGrid = uigridlayout(map1Inspector, [9, 1]);
-    map1InspGrid.RowHeight = {'22px', '22px', '22px', '22px', '22px', '26px', '22px', '22px', '1x'};
+    map1InspGrid.RowHeight = {22, 22, 22, 22, 22, 26, 22, 22, '1x'};
     map1InspGrid.Padding = [10, 6, 10, 6];
     map1InspGrid.RowSpacing = 3;
     map1InspGrid.BackgroundColor = C_OXFORD_BLUE;
@@ -416,7 +416,7 @@ function varargout = EnergyConsumptionApp()
     cardMapFooter = uipanel(mapsScrollGrid, 'BackgroundColor', C_OXFORD_BLUE, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
     gridMapFooter = uigridlayout(cardMapFooter, [1, 3]);
-    gridMapFooter.ColumnWidth = {'1x', '220px', '220px'};
+    gridMapFooter.ColumnWidth = {'1x', 220, 220};
     gridMapFooter.RowHeight = {'1x'};
     gridMapFooter.Padding = [16, 12, 16, 12];
     gridMapFooter.BackgroundColor = C_OXFORD_BLUE;
@@ -544,7 +544,7 @@ function varargout = EnergyConsumptionApp()
     %% TAB 4: 🏢 RETROFIT CANDIDATES DIRECTORY & DETAIL INSPECTOR
     %% ====================================================================
     retGrid = uigridlayout(tabRetrofit, [2, 2]);
-    retGrid.RowHeight = {'42px', '1x'};
+    retGrid.RowHeight = {42, '1x'};
     retGrid.ColumnWidth = {'1.5x', '0.8x'};
     retGrid.Padding = [10, 8, 10, 8];
     retGrid.RowSpacing = 8;
@@ -554,9 +554,9 @@ function varargout = EnergyConsumptionApp()
     % Directory Toolbar
     pnlRetTool = uipanel(retGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
-    retGrid.RowHeight = {'44px', '1x'};
+    retGrid.RowHeight = {44, '1x'};
     gridRetTool = uigridlayout(pnlRetTool, [1, 6]);
-    gridRetTool.ColumnWidth = {'140px', '170px', '120px', '140px', '1x', '150px'};
+    gridRetTool.ColumnWidth = {140, 170, 120, 140, '1x', 150};
     gridRetTool.RowHeight = {'1x'};
     gridRetTool.Padding = [10, 4, 10, 4];
     gridRetTool.ColumnSpacing = 8;
@@ -614,7 +614,7 @@ function varargout = EnergyConsumptionApp()
         'Title', '  BUILDING ENERGY AUDIT & RETROFIT PRESCRIPTION  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridAudit = uigridlayout(pnlAuditCard, [10, 1]);
-    gridAudit.RowHeight = {'28px', '22px', '22px', '22px', '22px', '22px', '26px', '110px', '1x', '36px'};
+    gridAudit.RowHeight = {28, 22, 22, 22, 22, 22, 26, 110, '1x', 36};
     gridAudit.Padding = [12, 10, 12, 10];
     gridAudit.RowSpacing = 6;
     gridAudit.BackgroundColor = C_OXFORD_BLUE;
@@ -646,7 +646,7 @@ function varargout = EnergyConsumptionApp()
     %% TAB 5: 💡 WHAT-IF RETROFIT SIMULATOR
     %% ====================================================================
     simGrid = uigridlayout(tabSimulator, [1, 2]);
-    simGrid.ColumnWidth = {'420px', '1x'};
+    simGrid.ColumnWidth = {420, '1x'};
     simGrid.RowHeight = {'1x'};
     simGrid.Padding = [10, 8, 10, 8];
     simGrid.ColumnSpacing = 12;
@@ -658,7 +658,7 @@ function varargout = EnergyConsumptionApp()
         'Title', '  RETROFIT INTERVENTION CONTROLS  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridSimCtrl = uigridlayout(pnlSimControls, [13, 1]);
-    gridSimCtrl.RowHeight = {'24px', '22px', '32px', '22px', '32px', '22px', '32px', '22px', '32px', '22px', '32px', '1x', '40px'};
+    gridSimCtrl.RowHeight = {24, 22, 32, 22, 32, 22, 32, 22, 32, 22, 32, '1x', 40};
     gridSimCtrl.Padding = [14, 10, 14, 10];
     gridSimCtrl.RowSpacing = 4;
     gridSimCtrl.BackgroundColor = C_BG_CARD;
@@ -714,7 +714,7 @@ function varargout = EnergyConsumptionApp()
         'Title', '  PROJECTED SAVINGS & DECARBONIZATION IMPACT  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     gridSimRes = uigridlayout(pnlSimResults, [2, 2]);
-    gridSimRes.RowHeight = {'90px', '1x'};
+    gridSimRes.RowHeight = {90, '1x'};
     gridSimRes.ColumnWidth = {'1x', '1x'};
     gridSimRes.Padding = [12, 10, 12, 10];
     gridSimRes.RowSpacing = 10;
@@ -724,7 +724,7 @@ function varargout = EnergyConsumptionApp()
     % KPI Box A: Energy Saved
     kpiSimA = uipanel(gridSimRes, 'BackgroundColor', C_OXFORD_BLUE, 'BorderType', 'line', 'HighlightColor', C_BORDER);
     gridSimA = uigridlayout(kpiSimA, [2, 1]);
-    gridSimA.RowHeight = {'20px', '1x'};
+    gridSimA.RowHeight = {20, '1x'};
     gridSimA.Padding = [10, 6, 10, 6];
     gridSimA.BackgroundColor = C_OXFORD_BLUE;
     uilabel(gridSimA, 'Text', 'TOTAL ENERGY SAVED (kWh/m²)', 'FontSize', 10, 'FontColor', C_TEXT_MUTED, 'FontWeight', 'bold');
@@ -733,7 +733,7 @@ function varargout = EnergyConsumptionApp()
     % KPI Box B: Cost Saved ($)
     kpiSimB = uipanel(gridSimRes, 'BackgroundColor', C_OXFORD_BLUE, 'BorderType', 'line', 'HighlightColor', C_BORDER);
     gridSimB = uigridlayout(kpiSimB, [2, 1]);
-    gridSimB.RowHeight = {'20px', '1x'};
+    gridSimB.RowHeight = {20, '1x'};
     gridSimB.Padding = [10, 6, 10, 6];
     gridSimB.BackgroundColor = C_OXFORD_BLUE;
     uilabel(gridSimB, 'Text', 'PORTFOLIO COST SAVINGS ($/YR)', 'FontSize', 10, 'FontColor', C_TEXT_MUTED, 'FontWeight', 'bold');
@@ -759,7 +759,7 @@ function varargout = EnergyConsumptionApp()
     %% TAB 6: ⚙️ PIPELINE CONTROLS & LIVE TERMINAL CONSOLE
     %% ====================================================================
     pipeGrid = uigridlayout(tabPipeline, [1, 2]);
-    pipeGrid.ColumnWidth = {'440px', '1x'};
+    pipeGrid.ColumnWidth = {440, '1x'};
     pipeGrid.RowHeight = {'1x'};
     pipeGrid.Padding = [10, 8, 10, 8];
     pipeGrid.ColumnSpacing = 12;
@@ -771,8 +771,8 @@ function varargout = EnergyConsumptionApp()
         'Title', '  AI PIPELINE CONFIGURATION & HYPERPARAMETERS  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridPipeCtrl = uigridlayout(pnlPipeCtrl, [11, 2]);
-    gridPipeCtrl.ColumnWidth = {'200px', '1x'};
-    gridPipeCtrl.RowHeight = {'32px', '32px', '32px', '32px', '32px', '32px', '32px', '32px', '32px', '1x', '44px'};
+    gridPipeCtrl.ColumnWidth = {200, '1x'};
+    gridPipeCtrl.RowHeight = {32, 32, 32, 32, 32, 32, 32, 32, 32, '1x', 44};
     gridPipeCtrl.Padding = [14, 10, 14, 10];
     gridPipeCtrl.RowSpacing = 6;
     gridPipeCtrl.BackgroundColor = C_BG_CARD;
@@ -834,7 +834,7 @@ function varargout = EnergyConsumptionApp()
         'Title', '  REAL-TIME TRAINING LOG & EXECUTION CONSOLE  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     gridConsole = uigridlayout(pnlPipeConsole, [2, 1]);
-    gridConsole.RowHeight = {'1x', '36px'};
+    gridConsole.RowHeight = {'1x', 36};
     gridConsole.Padding = [10, 8, 10, 8];
     gridConsole.RowSpacing = 8;
     gridConsole.BackgroundColor = C_BG_CARD;
