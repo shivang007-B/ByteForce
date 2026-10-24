@@ -1,53 +1,53 @@
 function varargout = EnergyConsumptionApp()
-% EnergyConsumptionApp - Outstanding Cyber-Themed Building Energy Prediction
-% and Retrofit Intelligence Command Center for MATLAB.
+% EnergyConsumptionApp - Professional Building Energy Intelligence and
+% Retrofit Analytics Platform for MATLAB.
 %
-% THEME: Black Cyber / Oxford Blue / Vista Blue / Cyber Green
+% Color Theme: Deep Cyber Black / Oxford Blue / Vista Blue / Cyber Green
 %
-% FEATURES:
-%   - Instant Startup (no freeze, no stuck 'Loading...')
-%   - Interactive Custom Building Input & Live Predictor Panel
-%   - All 5 Maps Visible with Smooth Mouse Scroll-Down:
-%       1. 2D Campus Spatial Energy Waste Map
+% Features:
+%   - Instant rendering on launch (all graphs and maps active immediately)
+%   - Clean enterprise UI (no emojis, professional typography and layout)
+%   - Interactive Building Input & Live Prediction Engine
+%   - 5 Visible Spatial and Analytical Maps:
+%       1. Campus Site Spatial Energy Waste Map
 %       2. Retrofit Decision Boundary Quadrant Map
 %       3. Thermal Energy Intensity Heatmap Matrix Map
 %       4. Ranked Waste & Cumulative Savings Pareto Map
 %       5. Building Cluster & ROI Density Map
-%   - AI Benchmarks (RMSE, R², MAE, 5-Fold CV)
-%   - Diagnostics: Predicted vs Actual + 95% CI, Residuals, Feature Importance
+%   - Multi-Model Benchmarks (Linear, Tree, Random Forest, Gradient Boosting)
+%   - Model Diagnostics (Actual vs Predicted + 95% CI, Residuals, Feature Importance)
 %   - Retrofit Candidates Directory with Search & Severity Filters
-%   - What-If Retrofit Simulator with Cost & Carbon Calculations
-%   - Fast Live Pipeline Runner (3-second execution with progress updates)
+%   - What-If Retrofit Scenario Simulator
+%   - Pipeline Execution Controls and Live Activity Console
 %
-% USAGE:
+% Usage:
 %   >> RunApp
 %   >> EnergyConsumptionApp
 %
-% Author: ByteForce Climate Tech Hackathon Team
-% Copyright 2025-2026
+% ByteForce Climate Tech Analytics
 
-    % Ensure current folder is on path
+    % Ensure current directory is on MATLAB search path
     appFolder = fileparts(mfilename('fullpath'));
     if ~isempty(appFolder), addpath(appFolder); end
 
     %% --------------------------------------------------------------------
-    %% COLOR PALETTE: Black Cyber / Oxford Blue / Vista Blue / Cyber Green
+    %% COLOR PALETTE: Black / Oxford Blue / Vista Blue / Cyber Green
     %% --------------------------------------------------------------------
-    C_BG_DARK       = [0.035, 0.048, 0.082];  % Deep Cyber Black (#090C15)
-    C_BG_CARD       = [0.060, 0.095, 0.185];  % Oxford Blue Deep (#0F182F)
-    C_BG_ELEVATED   = [0.085, 0.135, 0.250];  % Oxford Navy (#162240)
-    C_BORDER        = [0.120, 0.210, 0.380];  % Subtle Cyber Border (#1F3661)
-    C_CYBER_GREEN   = [0.000, 0.950, 0.580];  % Neon Cyber Green (#00F294)
-    C_VISTA_BLUE    = [0.220, 0.530, 0.960];  % Vista Sky Blue (#3887F5)
-    C_OXFORD_BLUE   = [0.050, 0.110, 0.240];  % Oxford Deep Navy (#0D1C3D)
-    C_AMBER_WARN    = [1.000, 0.740, 0.180];  % Warning Amber (#FFBD2E)
-    C_CRIMSON_CRIT  = [0.960, 0.260, 0.380];  % Critical Neon Red (#F54261)
-    C_TEXT_LIGHT    = [0.920, 0.960, 1.000];  % Cyber White (#EBF5FF)
-    C_TEXT_MUTED    = [0.550, 0.650, 0.780];  % Slate Text (#8CA6C7)
-    C_AXIS_BG       = [0.045, 0.068, 0.125];  % Axes Canvas Dark (#0B1120)
+    C_BG_DARK       = [0.035, 0.048, 0.082];  % Deep Cyber Black
+    C_BG_CARD       = [0.060, 0.095, 0.185];  % Oxford Blue Surface
+    C_BG_ELEVATED   = [0.085, 0.135, 0.250];  % Oxford Navy Container
+    C_BORDER        = [0.120, 0.200, 0.360];  % Subtle Structural Border
+    C_CYBER_GREEN   = [0.000, 0.880, 0.520];  % Cyber Green Accent
+    C_VISTA_BLUE    = [0.220, 0.520, 0.940];  % Vista Sky Blue
+    C_OXFORD_BLUE   = [0.050, 0.100, 0.220];  % Oxford Deep Header
+    C_AMBER_WARN    = [0.950, 0.680, 0.150];  % Warning Amber
+    C_CRIMSON_CRIT  = [0.920, 0.240, 0.340];  % Critical Red
+    C_TEXT_LIGHT    = [0.920, 0.950, 0.980];  % Primary White
+    C_TEXT_MUTED    = [0.580, 0.660, 0.760];  % Muted Slate
+    C_AXIS_BG       = [0.045, 0.068, 0.125];  % Axes Canvas Dark
 
     %% --------------------------------------------------------------------
-    %% APP STATE DATA STRUCT
+    %% APPLICATION STATE
     %% --------------------------------------------------------------------
     state = struct();
     state.data          = table();
@@ -56,25 +56,24 @@ function varargout = EnergyConsumptionApp()
     state.trainedModels = struct();
     state.selectedRow   = 1;
     state.spatialData   = table();
-    state.customSample  = struct();
 
     %% --------------------------------------------------------------------
     %% MAIN FIGURE
     %% --------------------------------------------------------------------
     screenSize = get(0, 'ScreenSize');
-    figW = min(1480, max(1100, screenSize(3) - 80));
+    figW = min(1480, max(1120, screenSize(3) - 80));
     figH = min(920,  max(740,  screenSize(4) - 90));
     figX = max(20, round((screenSize(3) - figW) / 2));
     figY = max(30, round((screenSize(4) - figH) / 2));
 
-    mainFig = uifigure('Name', 'BYTEFORCE // Building Energy Intelligence & Retrofit AI Platform', ...
+    mainFig = uifigure('Name', 'BYTEFORCE | Building Energy Intelligence & Retrofit Analytics Platform', ...
         'Position', [figX, figY, figW, figH], ...
         'Color', C_BG_DARK, ...
         'AutoResizeChildren', 'off');
 
-    % Root grid: [Header 72, KPI Banner 82, Main Tabs 1x, Status Bar 28]
+    % Root grid layout: Header (68), KPI (78), Main Workspace (1x), Status (26)
     rootGrid = uigridlayout(mainFig, [4, 1]);
-    rootGrid.RowHeight = {72, 82, '1x', 28};
+    rootGrid.RowHeight = {68, 78, '1x', 26};
     rootGrid.ColumnWidth = {'1x'};
     rootGrid.Padding = [10, 8, 10, 8];
     rootGrid.RowSpacing = 8;
@@ -85,48 +84,42 @@ function varargout = EnergyConsumptionApp()
     %% ====================================================================
     headerPanel = uipanel(rootGrid, 'BackgroundColor', C_OXFORD_BLUE, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
-    headerGrid = uigridlayout(headerPanel, [1, 5]);
-    headerGrid.ColumnWidth = {45, '1x', 190, 160, 160};
+    headerGrid = uigridlayout(headerPanel, [1, 4]);
+    headerGrid.ColumnWidth = {'1x', 190, 160, 160};
     headerGrid.RowHeight = {'1x'};
-    headerGrid.Padding = [14, 8, 14, 8];
+    headerGrid.Padding = [16, 6, 16, 6];
     headerGrid.ColumnSpacing = 10;
     headerGrid.BackgroundColor = C_OXFORD_BLUE;
 
-    % Cyber Logo / Icon Badge
-    uilabel(headerGrid, 'Text', '⚡', 'FontSize', 28, ...
-        'FontColor', C_CYBER_GREEN, 'HorizontalAlignment', 'center');
-
-    % Title and Subtitle container
     titleBox = uigridlayout(headerGrid, [2, 1]);
-    titleBox.RowHeight = {26, 18};
+    titleBox.RowHeight = {24, 16};
     titleBox.Padding = [0, 0, 0, 0];
     titleBox.RowSpacing = 2;
     titleBox.BackgroundColor = C_OXFORD_BLUE;
 
-    uilabel(titleBox, 'Text', 'BYTEFORCE // ENERGY AI COMMAND CENTER', ...
-        'FontSize', 17, 'FontWeight', 'bold', 'FontColor', C_CYBER_GREEN);
+    uilabel(titleBox, 'Text', 'BYTEFORCE | BUILDING ENERGY INTELLIGENCE PLATFORM', ...
+        'FontSize', 16, 'FontWeight', 'bold', 'FontColor', C_CYBER_GREEN);
     uilabel(titleBox, ...
-        'Text', 'Predictive EUI Analytics • Climate Tech Optimization • Spatial Retrofit Mapping', ...
+        'Text', 'Predictive EUI Analytics, Climate Tech Optimization, and Spatial Retrofit Mapping', ...
         'FontSize', 11, 'FontColor', C_VISTA_BLUE);
 
-    % Action Buttons on Header
-    uibutton(headerGrid, 'push', 'Text', '⚡ Train & Show Graphs', ...
+    uibutton(headerGrid, 'push', 'Text', 'Train & Update Graphs', ...
         'BackgroundColor', C_CYBER_GREEN, 'FontColor', C_BG_DARK, ...
         'FontWeight', 'bold', 'FontSize', 12, ...
         'ButtonPushedFcn', @(~,~) runFastPipelineInteractive());
 
-    uibutton(headerGrid, 'push', 'Text', '📂 Load CSV Data', ...
+    uibutton(headerGrid, 'push', 'Text', 'Load Dataset', ...
         'BackgroundColor', C_VISTA_BLUE, 'FontColor', C_TEXT_LIGHT, ...
         'FontWeight', 'bold', 'FontSize', 12, ...
         'ButtonPushedFcn', @(~,~) loadCustomDataInteractive());
 
-    uibutton(headerGrid, 'push', 'Text', '💾 Export Reports', ...
+    uibutton(headerGrid, 'push', 'Text', 'Export Reports', ...
         'BackgroundColor', C_BG_ELEVATED, 'FontColor', C_CYBER_GREEN, ...
         'FontWeight', 'bold', 'FontSize', 12, ...
         'ButtonPushedFcn', @(~,~) exportReportsCallback());
 
     %% ====================================================================
-    %% 2. TOP KPI SCORECARD BANNER
+    %% 2. TOP KPI METRICS BANNER
     %% ====================================================================
     kpiPanel = uipanel(rootGrid, 'BackgroundColor', C_BG_DARK, 'BorderType', 'none');
     kpiGrid = uigridlayout(kpiPanel, [1, 4]);
@@ -136,136 +129,113 @@ function varargout = EnergyConsumptionApp()
     kpiGrid.ColumnSpacing = 10;
     kpiGrid.BackgroundColor = C_BG_DARK;
 
-    % KPI 1: Total Buildings
-    kpi1Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER);
+    kpi1Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER);
     kpi1Grid = uigridlayout(kpi1Card, [2, 1]);
-    kpi1Grid.RowHeight = {18, 38};
+    kpi1Grid.RowHeight = {16, 36};
     kpi1Grid.Padding = [10, 6, 10, 6];
     kpi1Grid.RowSpacing = 2;
     kpi1Grid.BackgroundColor = C_BG_CARD;
-    uilabel(kpi1Grid, 'Text', '🏢 TOTAL PORTFOLIO SAMPLES', 'FontSize', 10, ...
-        'FontColor', C_TEXT_MUTED, 'FontWeight', 'bold');
-    lblKpiBuildings = uilabel(kpi1Grid, 'Text', '1,000 Buildings', 'FontSize', 22, ...
-        'FontColor', C_VISTA_BLUE, 'FontWeight', 'bold');
+    uilabel(kpi1Grid, 'Text', 'PORTFOLIO SAMPLES ANALYZED', 'FontSize', 10, 'FontColor', C_TEXT_MUTED, 'FontWeight', 'bold');
+    lblKpiBuildings = uilabel(kpi1Grid, 'Text', '1,000 Buildings', 'FontSize', 20, 'FontColor', C_VISTA_BLUE, 'FontWeight', 'bold');
 
-    % KPI 2: Best AI Model & R2
-    kpi2Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER);
+    kpi2Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER);
     kpi2Grid = uigridlayout(kpi2Card, [2, 1]);
-    kpi2Grid.RowHeight = {18, 38};
+    kpi2Grid.RowHeight = {16, 36};
     kpi2Grid.Padding = [10, 6, 10, 6];
     kpi2Grid.RowSpacing = 2;
     kpi2Grid.BackgroundColor = C_BG_CARD;
-    uilabel(kpi2Grid, 'Text', '🏆 BEST MODEL (R² ACCURACY)', 'FontSize', 10, ...
-        'FontColor', C_TEXT_MUTED, 'FontWeight', 'bold');
-    lblKpiModel = uilabel(kpi2Grid, 'Text', 'GradientBoosting (0.912)', 'FontSize', 20, ...
-        'FontColor', C_CYBER_GREEN, 'FontWeight', 'bold');
+    uilabel(kpi2Grid, 'Text', 'TOP ACCURACY MODEL (R² SCORE)', 'FontSize', 10, 'FontColor', C_TEXT_MUTED, 'FontWeight', 'bold');
+    lblKpiModel = uilabel(kpi2Grid, 'Text', 'Gradient Boosting (0.912)', 'FontSize', 19, 'FontColor', C_CYBER_GREEN, 'FontWeight', 'bold');
 
-    % KPI 3: Energy Waste Identified
-    kpi3Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER);
+    kpi3Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER);
     kpi3Grid = uigridlayout(kpi3Card, [2, 1]);
-    kpi3Grid.RowHeight = {18, 38};
+    kpi3Grid.RowHeight = {16, 36};
     kpi3Grid.Padding = [10, 6, 10, 6];
     kpi3Grid.RowSpacing = 2;
     kpi3Grid.BackgroundColor = C_BG_CARD;
-    uilabel(kpi3Grid, 'Text', '⚡ IDENTIFIED ENERGY WASTE', 'FontSize', 10, ...
-        'FontColor', C_TEXT_MUTED, 'FontWeight', 'bold');
-    lblKpiSavings = uilabel(kpi3Grid, 'Text', '34.8 k EUI', 'FontSize', 22, ...
-        'FontColor', C_AMBER_WARN, 'FontWeight', 'bold');
+    uilabel(kpi3Grid, 'Text', 'IDENTIFIED ENERGY WASTE POTENTIAL', 'FontSize', 10, 'FontColor', C_TEXT_MUTED, 'FontWeight', 'bold');
+    lblKpiSavings = uilabel(kpi3Grid, 'Text', '34.8 k EUI units', 'FontSize', 20, 'FontColor', C_AMBER_WARN, 'FontWeight', 'bold');
 
-    % KPI 4: Critical Retrofit Targets
-    kpi4Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER);
+    kpi4Card = uipanel(kpiGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER);
     kpi4Grid = uigridlayout(kpi4Card, [2, 1]);
-    kpi4Grid.RowHeight = {18, 38};
+    kpi4Grid.RowHeight = {16, 36};
     kpi4Grid.Padding = [10, 6, 10, 6];
     kpi4Grid.RowSpacing = 2;
     kpi4Grid.BackgroundColor = C_BG_CARD;
-    uilabel(kpi4Grid, 'Text', '🚨 CRITICAL RETROFIT CANDIDATES', 'FontSize', 10, ...
-        'FontColor', C_TEXT_MUTED, 'FontWeight', 'bold');
-    lblKpiCritical = uilabel(kpi4Grid, 'Text', '142 Buildings', 'FontSize', 22, ...
-        'FontColor', C_CRIMSON_CRIT, 'FontWeight', 'bold');
+    uilabel(kpi4Grid, 'Text', 'HIGH-PRIORITY RETROFIT TARGETS', 'FontSize', 10, 'FontColor', C_TEXT_MUTED, 'FontWeight', 'bold');
+    lblKpiCritical = uilabel(kpi4Grid, 'Text', '142 Buildings', 'FontSize', 20, 'FontColor', C_CRIMSON_CRIT, 'FontWeight', 'bold');
 
     %% ====================================================================
-    %% 3. MAIN WORKSPACE TAB GROUP (Tab 1 is Default!)
+    %% 3. MAIN WORKSPACE TABS
     %% ====================================================================
     tabGroup = uitabgroup(rootGrid);
 
-    % Tab 1: 🗺️ All Maps & Custom Predictor (Always First & Default!)
-    tabMaps = uitab(tabGroup, 'Title', '🗺️ Maps & Spatial Waste Explorer');
+    tabMaps = uitab(tabGroup, 'Title', 'Spatial Energy & Retrofit Maps');
     tabMaps.BackgroundColor = C_BG_DARK;
 
-    % Tab 2: 🤖 AI Model Benchmarks & Comparison
-    tabModels = uitab(tabGroup, 'Title', '🤖 AI Benchmarks & Leaderboard');
+    tabModels = uitab(tabGroup, 'Title', 'Model Benchmark Performance');
     tabModels.BackgroundColor = C_BG_DARK;
 
-    % Tab 3: 🔬 Model Diagnostics & Explainability
-    tabDiagnostics = uitab(tabGroup, 'Title', '🔬 Diagnostics & Feature Drivers');
+    tabDiagnostics = uitab(tabGroup, 'Title', 'Diagnostics & Key Drivers');
     tabDiagnostics.BackgroundColor = C_BG_DARK;
 
-    % Tab 4: 🏢 Retrofit Candidates Directory & Inspector
-    tabRetrofit = uitab(tabGroup, 'Title', '🏢 Retrofit Candidates & Actions');
+    tabRetrofit = uitab(tabGroup, 'Title', 'Retrofit Candidates Directory');
     tabRetrofit.BackgroundColor = C_BG_DARK;
 
-    % Tab 5: 💡 What-If Retrofit Simulator
-    tabSimulator = uitab(tabGroup, 'Title', '💡 What-If Retrofit Simulator');
+    tabSimulator = uitab(tabGroup, 'Title', 'Retrofit Scenario Simulator');
     tabSimulator.BackgroundColor = C_BG_DARK;
 
-    % Tab 6: ⚙️ Pipeline Controls & Console
-    tabPipeline = uitab(tabGroup, 'Title', '⚙️ Pipeline Controls & Console');
+    tabPipeline = uitab(tabGroup, 'Title', 'Pipeline Execution & Logs');
     tabPipeline.BackgroundColor = C_BG_DARK;
 
     %% ====================================================================
     %% 4. STATUS BAR
     %% ====================================================================
-    statusBarPanel = uipanel(rootGrid, 'BackgroundColor', C_OXFORD_BLUE, ...
-        'BorderType', 'none');
+    statusBarPanel = uipanel(rootGrid, 'BackgroundColor', C_OXFORD_BLUE, 'BorderType', 'none');
     statusBarGrid = uigridlayout(statusBarPanel, [1, 3]);
-    statusBarGrid.ColumnWidth = {'1x', 350, 220};
+    statusBarGrid.ColumnWidth = {'1x', 320, 220};
     statusBarGrid.RowHeight = {'1x'};
     statusBarGrid.Padding = [12, 2, 12, 2];
     statusBarGrid.BackgroundColor = C_OXFORD_BLUE;
 
-    lblStatus = uilabel(statusBarGrid, 'Text', '● SYSTEM READY — All Backend Models & Graphs Active', ...
+    lblStatus = uilabel(statusBarGrid, 'Text', 'System Status: Active | All Analytical Modules Ready', ...
         'FontSize', 11, 'FontColor', C_CYBER_GREEN);
-    lblDataSummary = uilabel(statusBarGrid, 'Text', 'Dataset: Active Baseline (1,000 Buildings)', ...
+    lblDataSummary = uilabel(statusBarGrid, 'Text', 'Active Baseline Portfolio (1,000 Buildings)', ...
         'FontSize', 11, 'FontColor', C_VISTA_BLUE, 'HorizontalAlignment', 'center');
-    uilabel(statusBarGrid, 'Text', 'ByteForce Climate Tech • 2026', ...
+    uilabel(statusBarGrid, 'Text', 'ByteForce Climate Tech Analytics', ...
         'FontSize', 10, 'FontColor', C_TEXT_MUTED, 'HorizontalAlignment', 'right');
 
     %% ====================================================================
-    %% TAB 1: 🗺️ MAPS & CUSTOM INPUT PREDICTOR (With Scroll-Down Feature!)
+    %% TAB 1: SPATIAL ENERGY & RETROFIT MAPS (Scrollable View)
     %% ====================================================================
     mapsRootGrid = uigridlayout(tabMaps, [3, 1]);
-    mapsRootGrid.RowHeight = {44, 115, '1x'};
+    mapsRootGrid.RowHeight = {42, 92, '1x'};
     mapsRootGrid.ColumnWidth = {'1x'};
     mapsRootGrid.Padding = [8, 6, 8, 6];
     mapsRootGrid.RowSpacing = 6;
     mapsRootGrid.BackgroundColor = C_BG_DARK;
 
-    % 1. Maps Control Toolbar
+    % Toolbar
     mapsToolBar = uipanel(mapsRootGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
     mapsToolGrid = uigridlayout(mapsToolBar, [1, 6]);
-    mapsToolGrid.ColumnWidth = {180, 220, 160, 180, '1x', 130};
+    mapsToolGrid.ColumnWidth = {140, 220, 140, 180, '1x', 140};
     mapsToolGrid.RowHeight = {'1x'};
     mapsToolGrid.Padding = [10, 4, 10, 4];
     mapsToolGrid.ColumnSpacing = 8;
     mapsToolGrid.BackgroundColor = C_BG_CARD;
 
-    uilabel(mapsToolGrid, 'Text', '🗺️ MAPS VIEW SELECTOR:', 'FontColor', C_CYBER_GREEN, ...
+    uilabel(mapsToolGrid, 'Text', 'Select Map View:', 'FontColor', C_CYBER_GREEN, ...
         'FontWeight', 'bold', 'FontSize', 11);
 
     dropMapView = uidropdown(mapsToolGrid, ...
-        'Items', {'All Maps (Scroll Down To View)', ...
+        'Items', {'All Maps (Scroll Down to View)', ...
                   '1. Campus Geographic Site Map', ...
                   '2. Retrofit Decision Quadrant Map', ...
                   '3. Thermal Energy Intensity Heatmap', ...
                   '4. Ranked Waste & Savings Pareto Map', ...
                   '5. Building Cluster & ROI Density Map'}, ...
-        'Value', 'All Maps (Scroll Down To View)', ...
+        'Value', 'All Maps (Scroll Down to View)', ...
         'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT, ...
         'ValueChangedFcn', @(src,~) switchMapView(src.Value));
 
@@ -273,7 +243,7 @@ function varargout = EnergyConsumptionApp()
         'HorizontalAlignment', 'right', 'FontSize', 11);
 
     dropMapSeverity = uidropdown(mapsToolGrid, ...
-        'Items', {'All Severities', 'Critical Only (>2.5σ)', 'High Only (>1.5σ)', 'Medium Only', 'Low/Efficient'}, ...
+        'Items', {'All Severities', 'Critical Only (>2.5 std)', 'High Only (>1.5 std)', 'Medium Only', 'Low / Efficient'}, ...
         'Value', 'All Severities', ...
         'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT, ...
         'ValueChangedFcn', @(~,~) refreshMaps());
@@ -281,35 +251,32 @@ function varargout = EnergyConsumptionApp()
     lblMapStats = uilabel(mapsToolGrid, 'Text', 'Showing all 5 spatial maps below', ...
         'FontColor', C_VISTA_BLUE, 'FontSize', 11);
 
-    uibutton(mapsToolGrid, 'push', 'Text', '🔄 Refresh Maps', ...
+    uibutton(mapsToolGrid, 'push', 'Text', 'Refresh Visualizations', ...
         'BackgroundColor', C_BG_ELEVATED, 'FontColor', C_CYBER_GREEN, ...
         'FontWeight', 'bold', 'FontSize', 11, ...
         'ButtonPushedFcn', @(~,~) refreshMaps());
 
-    % 2. CUSTOM BUILDING INPUT & LIVE PREDICTOR BAR ("input bhi option de")
+    % Input panel for testing custom building
     customInputPanel = uipanel(mapsRootGrid, 'BackgroundColor', C_OXFORD_BLUE, ...
         'BorderType', 'line', 'HighlightColor', C_CYBER_GREEN, ...
-        'Title', '  ⚡ LIVE INPUT OPTION: TEST ANY BUILDING & GENERATE BACKEND GRAPH OUTPUT  ', ...
+        'Title', '  Interactive Building Evaluation Engine: Input Parameters & Generate Graph Output  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
-    inputGrid = uigridlayout(customInputPanel, [2, 8]);
-    inputGrid.ColumnWidth = {140, 110, 100, 100, 100, 100, 100, '1x'};
-    inputGrid.RowHeight = {24, 34};
-    inputGrid.Padding = [10, 4, 10, 6];
-    inputGrid.ColumnSpacing = 8;
+    inputGrid = uigridlayout(customInputPanel, [2, 7]);
+    inputGrid.ColumnWidth = {140, 120, 110, 110, 110, 110, '1x'};
+    inputGrid.RowHeight = {18, 30};
+    inputGrid.Padding = [12, 4, 12, 6];
+    inputGrid.ColumnSpacing = 10;
     inputGrid.RowSpacing = 2;
     inputGrid.BackgroundColor = C_OXFORD_BLUE;
 
-    % Row 1 Labels
-    uilabel(inputGrid, 'Text', 'Building Type:', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
-    uilabel(inputGrid, 'Text', 'Floor Area (m²):', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
-    uilabel(inputGrid, 'Text', 'Age (Years):', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
-    uilabel(inputGrid, 'Text', 'Temp (°C):', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
-    uilabel(inputGrid, 'Text', 'HVAC Eff (0-1):', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
-    uilabel(inputGrid, 'Text', 'Insulation (1-10):', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
-    uilabel(inputGrid, 'Text', 'Occupancy:', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
-    uilabel(inputGrid, 'Text', 'AI Predicted Output:', 'FontColor', C_CYBER_GREEN, 'FontWeight', 'bold', 'FontSize', 10);
+    uilabel(inputGrid, 'Text', 'Building Classification', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
+    uilabel(inputGrid, 'Text', 'Floor Area (m²)', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
+    uilabel(inputGrid, 'Text', 'Building Age (Yrs)', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
+    uilabel(inputGrid, 'Text', 'Outdoor Temp (°C)', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
+    uilabel(inputGrid, 'Text', 'HVAC Efficiency (0-1)', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
+    uilabel(inputGrid, 'Text', 'Insulation Rating (1-10)', 'FontColor', C_TEXT_MUTED, 'FontSize', 10);
+    uilabel(inputGrid, 'Text', 'Execute Model Prediction', 'FontColor', C_CYBER_GREEN, 'FontWeight', 'bold', 'FontSize', 10);
 
-    % Row 2 Controls
     inType = uidropdown(inputGrid, 'Items', {'Office', 'Residential', 'Retail', 'Industrial', 'Education'}, ...
         'Value', 'Office', 'BackgroundColor', C_BG_CARD, 'FontColor', C_TEXT_LIGHT);
     inArea = uieditfield(inputGrid, 'numeric', 'Value', 3500, 'Limits', [100, 50000], ...
@@ -322,31 +289,26 @@ function varargout = EnergyConsumptionApp()
         'BackgroundColor', C_BG_CARD, 'FontColor', C_TEXT_LIGHT);
     inInsul = uieditfield(inputGrid, 'numeric', 'Value', 4, 'Limits', [1, 10], ...
         'BackgroundColor', C_BG_CARD, 'FontColor', C_TEXT_LIGHT);
-    inOcc = uieditfield(inputGrid, 'numeric', 'Value', 120, 'Limits', [1, 2000], ...
-        'BackgroundColor', C_BG_CARD, 'FontColor', C_TEXT_LIGHT);
 
-    % Output Box with Predict Button
-    btnPredictCustom = uibutton(inputGrid, 'push', 'Text', '🔮 PREDICT EUI & PIN TO GRAPHS', ...
+    uibutton(inputGrid, 'push', 'Text', 'Predict EUI & Update Charts', ...
         'BackgroundColor', C_CYBER_GREEN, 'FontColor', C_BG_DARK, ...
         'FontWeight', 'bold', 'FontSize', 11, ...
         'ButtonPushedFcn', @(~,~) runCustomPrediction());
 
-    % 3. SCROLLABLE PANEL FOR ALL MAPS ("scroll down etc feature")
+    % Scrollable container for maps
     mapsScrollPanel = uipanel(mapsRootGrid, 'BackgroundColor', C_BG_DARK, ...
         'BorderType', 'none', 'Scrollable', 'on');
     mapsScrollGrid = uigridlayout(mapsScrollPanel, [6, 1]);
-    mapsScrollGrid.RowHeight = {500, 480, 480, 460, 480, 160};
+    mapsScrollGrid.RowHeight = {490, 470, 470, 450, 470, 60};
     mapsScrollGrid.ColumnWidth = {'1x'};
     mapsScrollGrid.Padding = [4, 4, 16, 8];
     mapsScrollGrid.RowSpacing = 16;
     mapsScrollGrid.BackgroundColor = C_BG_DARK;
 
-    % --------------------------------------------------------------------
     % MAP 1: Geographic Campus Site Energy Waste Map
-    % --------------------------------------------------------------------
     cardMap1 = uipanel(mapsScrollGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  MAP 1: GEOGRAPHIC / CAMPUS SITE ENERGY WASTE SPATIAL MAP (Green = Efficient, Red = Critical Waste)  ', ...
+        'Title', '  Map 1: Geographic Campus Site Energy Waste Spatial Map  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridMap1 = uigridlayout(cardMap1, [1, 2]);
     gridMap1.ColumnWidth = {'1x', 320};
@@ -358,10 +320,9 @@ function varargout = EnergyConsumptionApp()
     styleAxes(axGeoMap, 'Campus Spatial Layout (East-West km vs North-South km)', ...
         'East-West Coordinates (km)', 'North-South Coordinates (km)');
 
-    % Map 1 Inspector Side Panel
     map1Inspector = uipanel(gridMap1, 'BackgroundColor', C_OXFORD_BLUE, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  SELECTED BUILDING INSPECTOR  ', ...
+        'Title', '  Selected Building Energy Audit  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     map1InspGrid = uigridlayout(map1Inspector, [9, 1]);
     map1InspGrid.RowHeight = {22, 22, 22, 22, 22, 26, 22, 22, '1x'};
@@ -369,23 +330,21 @@ function varargout = EnergyConsumptionApp()
     map1InspGrid.RowSpacing = 3;
     map1InspGrid.BackgroundColor = C_OXFORD_BLUE;
 
-    lblInspId        = uilabel(map1InspGrid, 'Text', 'Building: #1', 'FontWeight', 'bold', 'FontColor', C_TEXT_LIGHT);
-    lblInspType      = uilabel(map1InspGrid, 'Text', 'Type: Office Commercial', 'FontColor', C_TEXT_MUTED);
+    lblInspId        = uilabel(map1InspGrid, 'Text', 'Building: Sample #1', 'FontWeight', 'bold', 'FontColor', C_TEXT_LIGHT);
+    lblInspType      = uilabel(map1InspGrid, 'Text', 'Type: Commercial Office', 'FontColor', C_TEXT_MUTED);
     lblInspActual    = uilabel(map1InspGrid, 'Text', 'Actual EUI: -- kWh/m²', 'FontColor', C_TEXT_LIGHT);
     lblInspPred      = uilabel(map1InspGrid, 'Text', 'Predicted EUI: -- kWh/m²', 'FontColor', C_VISTA_BLUE);
     lblInspExcess    = uilabel(map1InspGrid, 'Text', 'Excess Waste: -- kWh/m²', 'FontColor', C_AMBER_WARN, 'FontWeight', 'bold');
-    lblInspSeverity  = uilabel(map1InspGrid, 'Text', 'SEVERITY: CRITICAL', 'FontColor', C_CRIMSON_CRIT, 'FontWeight', 'bold');
+    lblInspSeverity  = uilabel(map1InspGrid, 'Text', 'Severity: Critical', 'FontColor', C_CRIMSON_CRIT, 'FontWeight', 'bold');
     lblInspSaving    = uilabel(map1InspGrid, 'Text', 'Potential Savings: -- kWh/m²', 'FontColor', C_CYBER_GREEN);
-    lblInspDollar    = uilabel(map1InspGrid, 'Text', 'Est. Cost Waste: $-- / yr', 'FontColor', C_CYBER_GREEN, 'FontWeight', 'bold');
+    lblInspDollar    = uilabel(map1InspGrid, 'Text', 'Estimated Cost Waste: $-- / yr', 'FontColor', C_CYBER_GREEN, 'FontWeight', 'bold');
     txtInspAction    = uitextarea(map1InspGrid, 'Value', {'Retrofit Plan: Upgrade chiller and building envelope insulation.'}, ...
         'BackgroundColor', C_BG_CARD, 'FontColor', C_TEXT_MUTED, 'Editable', 'off');
 
-    % --------------------------------------------------------------------
     % MAP 2: Retrofit Decision Boundary Quadrant Map
-    % --------------------------------------------------------------------
     cardMap2 = uipanel(mapsScrollGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  MAP 2: RETROFIT DECISION BOUNDARY QUADRANT MAP (Actual EUI vs Predicted EUI)  ', ...
+        'Title', '  Map 2: Retrofit Decision Boundary Quadrant Map  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     gridMap2 = uigridlayout(cardMap2, [1, 2]);
     gridMap2.ColumnWidth = {'1x', '1x'};
@@ -394,19 +353,17 @@ function varargout = EnergyConsumptionApp()
     gridMap2.BackgroundColor = C_BG_CARD;
 
     axQuadMap = uiaxes(gridMap2);
-    styleAxes(axQuadMap, 'Retrofit Boundary (Above Line = Energy Waste / Below Line = Efficient)', ...
+    styleAxes(axQuadMap, 'Retrofit Decision Boundary (Above Line = Excess Energy Waste)', ...
         'Predicted Site EUI (kWh/m²)', 'Actual Site EUI (kWh/m²)');
 
     axQuadDist = uiaxes(gridMap2);
-    styleAxes(axQuadDist, 'Excess EUI Distribution by Severity Group', ...
-        'Severity Category', 'Excess Energy Use Intensity (kWh/m²)');
+    styleAxes(axQuadDist, 'Mean Excess EUI by Waste Severity Classification', ...
+        'Severity Category', 'Mean Excess EUI (kWh/m²/yr)');
 
-    % --------------------------------------------------------------------
     % MAP 3: Thermal Energy Intensity Heatmap Matrix Map
-    % --------------------------------------------------------------------
     cardMap3 = uipanel(mapsScrollGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  MAP 3: THERMAL ENERGY INTENSITY HEATMAP MATRIX (Building Type vs Climate / Temp Zones)  ', ...
+        'Title', '  Map 3: Thermal Energy Intensity Heatmap Matrix Map  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridMap3 = uigridlayout(cardMap3, [1, 2]);
     gridMap3.ColumnWidth = {'1.2x', '0.8x'};
@@ -415,19 +372,17 @@ function varargout = EnergyConsumptionApp()
     gridMap3.BackgroundColor = C_BG_CARD;
 
     axHeatmap = uiaxes(gridMap3);
-    styleAxes(axHeatmap, 'Energy Intensity Thermal Matrix Map (Building Type vs Temperature Zone)', ...
+    styleAxes(axHeatmap, 'Thermal Intensity Matrix (Building Type vs Climate Zone)', ...
         'Temperature / Climate Zone (°C)', 'Building Use Classification');
 
     axClusterBars = uiaxes(gridMap3);
     styleAxes(axClusterBars, 'Mean Energy Consumption by Building Classification', ...
         'Building Classification', 'Mean EUI (kWh/m²/yr)');
 
-    % --------------------------------------------------------------------
-    % MAP 4: Ranked Building Excess Consumption & Cumulative Savings Pareto Map
-    % --------------------------------------------------------------------
+    % MAP 4: Ranked Waste & Cumulative Savings Pareto Map
     cardMap4 = uipanel(mapsScrollGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  MAP 4: RANKED ENERGY WASTE & CUMULATIVE SAVINGS PARETO MAP (Top Retrofit Candidates)  ', ...
+        'Title', '  Map 4: Ranked Waste & Cumulative Savings Pareto Map  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_AMBER_WARN);
     gridMap4 = uigridlayout(cardMap4, [1, 1]);
     gridMap4.ColumnWidth = {'1x'};
@@ -436,15 +391,13 @@ function varargout = EnergyConsumptionApp()
     gridMap4.BackgroundColor = C_BG_CARD;
 
     axParetoMap = uiaxes(gridMap4);
-    styleAxes(axParetoMap, 'Top Buildings Ranked by Energy Waste with Cumulative Savings Curve', ...
+    styleAxes(axParetoMap, 'Top Ranked Energy Wasting Buildings with Cumulative Savings Curve', ...
         'Building Rank (Highest Waste First)', 'Excess Energy Consumption (kWh/m²/yr)');
 
-    % --------------------------------------------------------------------
-    % MAP 5: Building Cluster & ROI Density Map (Age vs Size vs Waste)
-    % --------------------------------------------------------------------
+    % MAP 5: Building Cluster & ROI Density Map
     cardMap5 = uipanel(mapsScrollGrid, 'BackgroundColor', C_BG_CARD, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  MAP 5: BUILDING CLUSTER & RETROFIT ROI DENSITY MAP (Age vs Size vs Energy Waste)  ', ...
+        'Title', '  Map 5: Building Cluster & Retrofit ROI Density Map  ', ...
         'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridMap5 = uigridlayout(cardMap5, [1, 2]);
     gridMap5.ColumnWidth = {'1x', '1x'};
@@ -453,7 +406,7 @@ function varargout = EnergyConsumptionApp()
     gridMap5.BackgroundColor = C_BG_CARD;
 
     axAgeSizeMap = uiaxes(gridMap5);
-    styleAxes(axAgeSizeMap, 'Building Age vs Floor Area (Color = Excess Waste)', ...
+    styleAxes(axAgeSizeMap, 'Building Age vs Gross Floor Area (Color = Excess Waste)', ...
         'Building Age (Years)', 'Floor Area (m²)');
 
     axBubbleRoi = uiaxes(gridMap5);
@@ -463,24 +416,20 @@ function varargout = EnergyConsumptionApp()
     % Map Footer Navigation Card
     cardMapFooter = uipanel(mapsScrollGrid, 'BackgroundColor', C_OXFORD_BLUE, ...
         'BorderType', 'line', 'HighlightColor', C_BORDER);
-    gridMapFooter = uigridlayout(cardMapFooter, [1, 3]);
-    gridMapFooter.ColumnWidth = {'1x', 220, 220};
+    gridMapFooter = uigridlayout(cardMapFooter, [1, 2]);
+    gridMapFooter.ColumnWidth = {'1x', 180};
     gridMapFooter.RowHeight = {'1x'};
-    gridMapFooter.Padding = [16, 12, 16, 12];
+    gridMapFooter.Padding = [16, 8, 16, 8];
     gridMapFooter.BackgroundColor = C_OXFORD_BLUE;
 
-    uilabel(gridMapFooter, 'Text', '⚡ All 5 Maps Rendered. Scroll down freely to view all spatial layers.', ...
-        'FontColor', C_CYBER_GREEN, 'FontSize', 12, 'FontWeight', 'bold');
-    uibutton(gridMapFooter, 'push', 'Text', '⬆️ Scroll To Top', ...
+    uilabel(gridMapFooter, 'Text', 'All 5 spatial and analytical maps are active. Scroll down freely to inspect each visualization.', ...
+        'FontColor', C_CYBER_GREEN, 'FontSize', 11, 'FontWeight', 'bold');
+    uibutton(gridMapFooter, 'push', 'Text', 'Scroll to Top', ...
         'BackgroundColor', C_BG_CARD, 'FontColor', C_TEXT_LIGHT, ...
         'ButtonPushedFcn', @(~,~) scrollToTop());
-    uibutton(gridMapFooter, 'push', 'Text', '💾 Export All Maps (PNG)', ...
-        'BackgroundColor', C_VISTA_BLUE, 'FontColor', C_TEXT_LIGHT, ...
-        'FontWeight', 'bold', ...
-        'ButtonPushedFcn', @(~,~) exportMapsCallback());
 
     %% ====================================================================
-    %% TAB 2: 🤖 AI MODEL BENCHMARKS & LEADERBOARD
+    %% TAB 2: MODEL BENCHMARK PERFORMANCE
     %% ====================================================================
     modelsGrid = uigridlayout(tabModels, [2, 2]);
     modelsGrid.RowHeight = {'1.1x', '0.9x'};
@@ -490,42 +439,34 @@ function varargout = EnergyConsumptionApp()
     modelsGrid.ColumnSpacing = 10;
     modelsGrid.BackgroundColor = C_BG_DARK;
 
-    pnlMdl1 = uipanel(modelsGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  MODEL ERROR COMPARISON (RMSE: Train vs Test)  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
+    pnlMdl1 = uipanel(modelsGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Root Mean Square Error Comparison (Train vs Test)  ', 'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     axMdlRmse = uiaxes(pnlMdl1);
     styleAxes(axMdlRmse, 'Train vs Test RMSE (Lower is Better)', 'Model Architecture', 'Root Mean Square Error (RMSE)');
 
-    pnlMdl2 = uipanel(modelsGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  MODEL ACCURACY COMPARISON (R²: Train vs Test)  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
+    pnlMdl2 = uipanel(modelsGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Model Accuracy Comparison (R² Score)  ', 'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     axMdlR2 = uiaxes(pnlMdl2);
     styleAxes(axMdlR2, 'R-Squared Score (1.0 is Perfect Fit)', 'Model Architecture', 'R-Squared Score (R²)');
 
-    pnlMdl3 = uipanel(modelsGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  5-FOLD CROSS-VALIDATION STABILITY (CV RMSE ± Std vs Test RMSE)  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_AMBER_WARN);
+    pnlMdl3 = uipanel(modelsGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Cross-Validation Stability (CV RMSE ± Std vs Test RMSE)  ', 'FontWeight', 'bold', 'ForegroundColor', C_AMBER_WARN);
     axMdlCv = uiaxes(pnlMdl3);
-    styleAxes(axMdlCv, '5-Fold CV Generalization & Overfitting Check', 'Model Architecture', 'Cross-Validation RMSE');
+    styleAxes(axMdlCv, 'Cross-Validation Generalization Evaluation', 'Model Architecture', 'Cross-Validation RMSE');
 
-    pnlMdl4 = uipanel(modelsGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  AI MODEL BENCHMARK LEADERBOARD  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
+    pnlMdl4 = uipanel(modelsGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  AI Model Benchmark Leaderboard  ', 'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridMdlTbl = uigridlayout(pnlMdl4, [1, 1]);
     gridMdlTbl.Padding = [8, 8, 8, 8];
     gridMdlTbl.BackgroundColor = C_BG_CARD;
 
     tblModels = uitable(gridMdlTbl, ...
         'ColumnName', {'Model Architecture', 'Train RMSE', 'Test RMSE', 'Test R²', 'Test MAE', 'Status'}, ...
-        'ColumnWidth', {'auto', 90, 90, 80, 80, 100}, ...
+        'ColumnWidth', {'auto', 90, 90, 80, 80, 110}, ...
         'RowName', {}, 'BackgroundColor', [C_AXIS_BG; C_BG_CARD]);
 
     %% ====================================================================
-    %% TAB 3: 🔬 MODEL DIAGNOSTICS & EXPLAINABILITY
+    %% TAB 3: DIAGNOSTICS & KEY DRIVERS
     %% ====================================================================
     diagGrid = uigridlayout(tabDiagnostics, [2, 3]);
     diagGrid.RowHeight = {'1x', '1x'};
@@ -535,50 +476,38 @@ function varargout = EnergyConsumptionApp()
     diagGrid.ColumnSpacing = 10;
     diagGrid.BackgroundColor = C_BG_DARK;
 
-    pnlD1 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  PREDICTED VS ACTUAL EUI (Best Model + 95% CI)  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
+    pnlD1 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Predicted vs Actual Site EUI (Best Model + 95% CI)  ', 'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     axPredAct = uiaxes(pnlD1);
     styleAxes(axPredAct, 'Predicted vs Actual EUI with 95% Confidence Band', 'Actual Site EUI', 'Predicted Site EUI');
 
-    pnlD2 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  RESIDUAL ERROR DISTRIBUTION  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
+    pnlD2 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Residual Error Distribution  ', 'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     axResidHist = uiaxes(pnlD2);
     styleAxes(axResidHist, 'Residual Error Distribution (Actual − Predicted)', 'Residual Error', 'Frequency');
 
-    pnlD3 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  RESIDUALS VS FITTED (Homoscedasticity Check)  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_AMBER_WARN);
+    pnlD3 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Residuals vs Fitted Values (Homoscedasticity)  ', 'FontWeight', 'bold', 'ForegroundColor', C_AMBER_WARN);
     axResidFit = uiaxes(pnlD3);
     styleAxes(axResidFit, 'Fitted Predictions vs Residuals', 'Predicted EUI', 'Residual');
 
-    pnlD4 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  TOP 20 KEY DRIVERS (Feature Importance Ranking)  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
+    pnlD4 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Key Drivers: Top Feature Importance Ranking  ', 'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     axFeatImp = uiaxes(pnlD4);
-    styleAxes(axFeatImp, 'Top Feature Drivers of Energy Consumption', 'Importance Metric', 'Feature Name');
+    styleAxes(axFeatImp, 'Top Drivers of Energy Consumption', 'Importance Score', 'Feature Name');
 
-    pnlD5 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  RANDOM FOREST 95% UNCERTAINTY QUANTIFICATION  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
+    pnlD5 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Random Forest 95% Uncertainty Prediction Intervals  ', 'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     axUqCurve = uiaxes(pnlD5);
     styleAxes(axUqCurve, '95% Uncertainty Prediction Intervals', 'Sorted Building Samples', 'Site EUI (kWh/m²)');
 
-    pnlD6 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  TARGET VARIABLE DISTRIBUTION (Site EUI)  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_TEXT_LIGHT);
+    pnlD6 = uipanel(diagGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Portfolio Site EUI Target Distribution  ', 'FontWeight', 'bold', 'ForegroundColor', C_TEXT_LIGHT);
     axTargetDist = uiaxes(pnlD6);
-    styleAxes(axTargetDist, 'Site EUI Histogram with Median & Mean Markers', 'Site EUI (kWh/m²)', 'Count');
+    styleAxes(axTargetDist, 'Site EUI Histogram with Median and Mean Markers', 'Site EUI (kWh/m²)', 'Count');
 
     %% ====================================================================
-    %% TAB 4: 🏢 RETROFIT CANDIDATES DIRECTORY & DETAIL INSPECTOR
+    %% TAB 4: RETROFIT CANDIDATES DIRECTORY
     %% ====================================================================
     retGrid = uigridlayout(tabRetrofit, [2, 2]);
     retGrid.RowHeight = {44, '1x'};
@@ -588,8 +517,7 @@ function varargout = EnergyConsumptionApp()
     retGrid.ColumnSpacing = 10;
     retGrid.BackgroundColor = C_BG_DARK;
 
-    pnlRetTool = uipanel(retGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER);
+    pnlRetTool = uipanel(retGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER);
     gridRetTool = uigridlayout(pnlRetTool, [1, 6]);
     gridRetTool.ColumnWidth = {140, 170, 120, 140, '1x', 150};
     gridRetTool.RowHeight = {'1x'};
@@ -597,85 +525,71 @@ function varargout = EnergyConsumptionApp()
     gridRetTool.ColumnSpacing = 8;
     gridRetTool.BackgroundColor = C_BG_CARD;
 
-    uilabel(gridRetTool, 'Text', 'Filter Severity:', 'FontColor', C_CYBER_GREEN, ...
-        'FontWeight', 'bold', 'FontSize', 11);
-
+    uilabel(gridRetTool, 'Text', 'Filter Severity:', 'FontColor', C_CYBER_GREEN, 'FontWeight', 'bold', 'FontSize', 11);
     dropRetSeverity = uidropdown(gridRetTool, ...
         'Items', {'All Severities', 'Critical Only', 'High Only', 'Medium Only', 'Low Only'}, ...
         'Value', 'All Severities', ...
         'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT, ...
         'ValueChangedFcn', @(~,~) filterRetrofitTable());
 
-    uilabel(gridRetTool, 'Text', 'Search Sample ID:', 'FontColor', C_TEXT_MUTED, ...
-        'HorizontalAlignment', 'right', 'FontSize', 11);
-
-    txtSearchId = uieditfield(gridRetTool, 'text', 'Value', '', ...
-        'Placeholder', 'e.g. 15', ...
+    uilabel(gridRetTool, 'Text', 'Search Sample ID:', 'FontColor', C_TEXT_MUTED, 'HorizontalAlignment', 'right', 'FontSize', 11);
+    txtSearchId = uieditfield(gridRetTool, 'text', 'Value', '', 'Placeholder', 'e.g. 15', ...
         'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT, ...
         'ValueChangedFcn', @(~,~) filterRetrofitTable());
 
-    lblRetCount = uilabel(gridRetTool, 'Text', 'Loaded candidates', ...
-        'FontColor', C_VISTA_BLUE, 'FontSize', 11);
-
-    uibutton(gridRetTool, 'push', 'Text', '💾 Export CSV', ...
+    lblRetCount = uilabel(gridRetTool, 'Text', 'Loaded candidates', 'FontColor', C_VISTA_BLUE, 'FontSize', 11);
+    uibutton(gridRetTool, 'push', 'Text', 'Export CSV Table', ...
         'BackgroundColor', C_VISTA_BLUE, 'FontColor', C_TEXT_LIGHT, ...
         'FontWeight', 'bold', 'FontSize', 11, ...
         'ButtonPushedFcn', @(~,~) exportRetrofitCsvCallback());
 
-    uilabel(retGrid, 'Text', '  SELECT ANY BUILDING FOR INSTANT RETROFIT AUDIT  ', ...
+    uilabel(retGrid, 'Text', 'Select Any Building Below for Detailed Audit Analysis', ...
         'FontColor', C_CYBER_GREEN, 'FontWeight', 'bold', 'FontSize', 12);
 
-    pnlRetTable = uipanel(retGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  RANKED CANDIDATES TABLE (Sorted By Energy Waste Descending)  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
+    pnlRetTable = uipanel(retGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Ranked Candidates Directory (Sorted by Energy Waste)  ', 'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     gridRetTbl = uigridlayout(pnlRetTable, [1, 1]);
     gridRetTbl.Padding = [6, 6, 6, 6];
     gridRetTbl.BackgroundColor = C_BG_CARD;
 
     tblRetrofit = uitable(gridRetTbl, ...
-        'ColumnName', {'Rank', 'Sample Idx', 'Actual EUI', 'Predicted EUI', 'Excess EUI', 'Excess %', 'Severity', 'Potential Saving', 'Percentile'}, ...
+        'ColumnName', {'Rank', 'Sample ID', 'Actual EUI', 'Predicted EUI', 'Excess EUI', 'Excess %', 'Severity', 'Potential Saving', 'Percentile'}, ...
         'ColumnWidth', {55, 80, 85, 95, 85, 75, 80, 105, 75}, ...
-        'RowName', {}, ...
-        'SelectionType', 'row', ...
+        'RowName', {}, 'SelectionType', 'row', ...
         'BackgroundColor', [C_AXIS_BG; C_BG_CARD], ...
         'CellSelectionCallback', @(src, event) candidateSelectedCallback(src, event));
 
-    pnlAuditCard = uipanel(retGrid, 'BackgroundColor', C_OXFORD_BLUE, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  BUILDING ENERGY AUDIT & RETROFIT PRESCRIPTION  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
+    pnlAuditCard = uipanel(retGrid, 'BackgroundColor', C_OXFORD_BLUE, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Detailed Energy Audit & Retrofit Prescription  ', 'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridAudit = uigridlayout(pnlAuditCard, [10, 1]);
     gridAudit.RowHeight = {28, 22, 22, 22, 22, 22, 26, 110, '1x', 36};
     gridAudit.Padding = [12, 10, 12, 10];
     gridAudit.RowSpacing = 6;
     gridAudit.BackgroundColor = C_OXFORD_BLUE;
 
-    lblAuditTitle    = uilabel(gridAudit, 'Text', 'BUILDING #1 DEEP AUDIT', ...
-        'FontSize', 14, 'FontWeight', 'bold', 'FontColor', C_CYBER_GREEN);
+    lblAuditTitle    = uilabel(gridAudit, 'Text', 'Building Sample #1 Deep Audit', 'FontSize', 14, 'FontWeight', 'bold', 'FontColor', C_CYBER_GREEN);
     lblAuditActual   = uilabel(gridAudit, 'Text', 'Actual Site EUI: -- kWh/m²', 'FontColor', C_TEXT_LIGHT);
     lblAuditPred     = uilabel(gridAudit, 'Text', 'Predicted Baseline EUI: -- kWh/m²', 'FontColor', C_VISTA_BLUE);
-    lblAuditExcess   = uilabel(gridAudit, 'Text', 'Wasted Energy: -- kWh/m²', 'FontColor', C_AMBER_WARN, 'FontWeight', 'bold');
-    lblAuditSeverity = uilabel(gridAudit, 'Text', 'Waste Classification: CRITICAL', 'FontColor', C_CRIMSON_CRIT, 'FontWeight', 'bold');
+    lblAuditExcess   = uilabel(gridAudit, 'Text', 'Identified Excess Waste: -- kWh/m²', 'FontColor', C_AMBER_WARN, 'FontWeight', 'bold');
+    lblAuditSeverity = uilabel(gridAudit, 'Text', 'Classification: Critical', 'FontColor', C_CRIMSON_CRIT, 'FontWeight', 'bold');
     lblAuditSavings  = uilabel(gridAudit, 'Text', 'Estimated Annual Cost Waste: $--', 'FontColor', C_CYBER_GREEN, 'FontWeight', 'bold');
-    uilabel(gridAudit, 'Text', 'Prescribed Engineering Interventions:', 'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
+    uilabel(gridAudit, 'Text', 'Recommended Engineering Interventions:', 'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
 
     txtAuditAction   = uitextarea(gridAudit, ...
-        'Value', {'1. Replace legacy chiller with Variable Refrigerant Flow (VRF).', ...
-                  '2. Upgrade double-glazed low-E windows and exterior insulation.', ...
-                  '3. Implement smart occupancy sensors and automated setbacks.'}, ...
+        'Value', {'1. Replace legacy chiller with high-efficiency Variable Refrigerant Flow system.', ...
+                  '2. Upgrade double-glazed low-E windows and exterior wall insulation.', ...
+                  '3. Implement smart occupancy sensors and automated HVAC temperature setbacks.'}, ...
         'BackgroundColor', C_BG_CARD, 'FontColor', C_TEXT_LIGHT, 'Editable', 'off');
 
     axAuditMini = uiaxes(gridAudit);
-    styleAxes(axAuditMini, 'Actual vs Target Baseline EUI', 'Metric', 'EUI (kWh/m²)');
+    styleAxes(axAuditMini, 'Actual vs Predicted Baseline EUI', 'Metric', 'EUI (kWh/m²)');
 
-    uibutton(gridAudit, 'push', 'Text', '💡 Test in What-If Simulator', ...
+    uibutton(gridAudit, 'push', 'Text', 'Simulate in What-If Module', ...
         'BackgroundColor', C_CYBER_GREEN, 'FontColor', C_BG_DARK, ...
-        'FontWeight', 'bold', ...
-        'ButtonPushedFcn', @(~,~) jumpToSimulator());
+        'FontWeight', 'bold', 'ButtonPushedFcn', @(~,~) jumpToSimulator());
 
     %% ====================================================================
-    %% TAB 5: 💡 WHAT-IF RETROFIT SIMULATOR
+    %% TAB 5: WHAT-IF RETROFIT SIMULATOR
     %% ====================================================================
     simGrid = uigridlayout(tabSimulator, [1, 2]);
     simGrid.ColumnWidth = {420, '1x'};
@@ -684,60 +598,45 @@ function varargout = EnergyConsumptionApp()
     simGrid.ColumnSpacing = 12;
     simGrid.BackgroundColor = C_BG_DARK;
 
-    pnlSimControls = uipanel(simGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  RETROFIT INTERVENTION CONTROLS  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
+    pnlSimControls = uipanel(simGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Retrofit Intervention Sliders  ', 'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
     gridSimCtrl = uigridlayout(pnlSimControls, [13, 1]);
     gridSimCtrl.RowHeight = {24, 22, 32, 22, 32, 22, 32, 22, 32, 22, 32, '1x', 40};
     gridSimCtrl.Padding = [14, 10, 14, 10];
     gridSimCtrl.RowSpacing = 4;
     gridSimCtrl.BackgroundColor = C_BG_CARD;
 
-    uilabel(gridSimCtrl, 'Text', '⚡ SIMULATE RETROFIT IMPACT', ...
-        'FontSize', 13, 'FontWeight', 'bold', 'FontColor', C_CYBER_GREEN);
+    uilabel(gridSimCtrl, 'Text', 'Scenario Engineering Controls', 'FontSize', 13, 'FontWeight', 'bold', 'FontColor', C_CYBER_GREEN);
 
-    lblHvacVal = uilabel(gridSimCtrl, 'Text', '1. HVAC Efficiency Upgrade: +20%', ...
-        'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
-    sldHvac = uislider(gridSimCtrl, 'Limits', [0, 50], 'Value', 20, ...
-        'FontColor', C_TEXT_MUTED, ...
+    lblHvacVal = uilabel(gridSimCtrl, 'Text', '1. HVAC Efficiency Upgrade: +20%', 'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
+    sldHvac = uislider(gridSimCtrl, 'Limits', [0, 50], 'Value', 20, 'FontColor', C_TEXT_MUTED, ...
         'ValueChangedFcn', @(src,~) updateSimulator(src.Value, 'hvac'));
 
-    lblInsulVal = uilabel(gridSimCtrl, 'Text', '2. Building Envelope Insulation: +2 Rating', ...
-        'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
-    sldInsul = uislider(gridSimCtrl, 'Limits', [0, 5], 'Value', 2, ...
-        'FontColor', C_TEXT_MUTED, ...
+    lblInsulVal = uilabel(gridSimCtrl, 'Text', '2. Building Envelope Insulation: +2 Rating', 'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
+    sldInsul = uislider(gridSimCtrl, 'Limits', [0, 5], 'Value', 2, 'FontColor', C_TEXT_MUTED, ...
         'ValueChangedFcn', @(src,~) updateSimulator(src.Value, 'insul'));
 
-    lblControlsVal = uilabel(gridSimCtrl, 'Text', '3. Smart Automation & Setbacks: 15% Reduction', ...
-        'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
-    sldControls = uislider(gridSimCtrl, 'Limits', [0, 30], 'Value', 15, ...
-        'FontColor', C_TEXT_MUTED, ...
+    lblControlsVal = uilabel(gridSimCtrl, 'Text', '3. Smart Automation & Setbacks: 15% Reduction', 'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
+    sldControls = uislider(gridSimCtrl, 'Limits', [0, 30], 'Value', 15, 'FontColor', C_TEXT_MUTED, ...
         'ValueChangedFcn', @(src,~) updateSimulator(src.Value, 'controls'));
 
-    lblSolarVal = uilabel(gridSimCtrl, 'Text', '4. Rooftop Solar PV Generation: 40 kW', ...
-        'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
-    sldSolar = uislider(gridSimCtrl, 'Limits', [0, 150], 'Value', 40, ...
-        'FontColor', C_TEXT_MUTED, ...
+    lblSolarVal = uilabel(gridSimCtrl, 'Text', '4. Rooftop Solar PV Generation: 40 kW', 'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
+    sldSolar = uislider(gridSimCtrl, 'Limits', [0, 150], 'Value', 40, 'FontColor', C_TEXT_MUTED, ...
         'ValueChangedFcn', @(src,~) updateSimulator(src.Value, 'solar'));
 
-    lblCostVal = uilabel(gridSimCtrl, 'Text', '5. Electricity Rate: $0.16 / kWh', ...
-        'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
-    sldCost = uislider(gridSimCtrl, 'Limits', [0.08, 0.35], 'Value', 0.16, ...
-        'FontColor', C_TEXT_MUTED, ...
+    lblCostVal = uilabel(gridSimCtrl, 'Text', '5. Electricity Rate: $0.16 / kWh', 'FontColor', C_TEXT_LIGHT, 'FontWeight', 'bold');
+    sldCost = uislider(gridSimCtrl, 'Limits', [0.08, 0.35], 'Value', 0.16, 'FontColor', C_TEXT_MUTED, ...
         'ValueChangedFcn', @(src,~) updateSimulator(src.Value, 'cost'));
 
-    uilabel(gridSimCtrl, 'Text', 'Simulation applies interventions dynamically to current candidate portfolio.', ...
+    uilabel(gridSimCtrl, 'Text', 'Interventions dynamically recalculate energy intensity and utility savings.', ...
         'FontColor', C_TEXT_MUTED, 'FontSize', 10);
 
-    uibutton(gridSimCtrl, 'push', 'Text', '🔄 Reset To Baseline', ...
+    uibutton(gridSimCtrl, 'push', 'Text', 'Reset Controls to Baseline', ...
         'BackgroundColor', C_BG_ELEVATED, 'FontColor', C_TEXT_LIGHT, ...
         'ButtonPushedFcn', @(~,~) resetSimulator());
 
-    pnlSimResults = uipanel(simGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  PROJECTED SAVINGS & DECARBONIZATION IMPACT  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
+    pnlSimResults = uipanel(simGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Projected Energy, Cost & Carbon Abatement  ', 'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     gridSimRes = uigridlayout(pnlSimResults, [2, 2]);
     gridSimRes.RowHeight = {90, '1x'};
     gridSimRes.ColumnWidth = {'1x', '1x'};
@@ -777,7 +676,7 @@ function varargout = EnergyConsumptionApp()
     styleAxes(axSimCo2, 'Carbon Abatement: Metric Tons CO₂ Avoided Over Time', 'Years Following Retrofit', 'Metric Tons CO₂ Avoided');
 
     %% ====================================================================
-    %% TAB 6: ⚙️ PIPELINE CONTROLS & LIVE TERMINAL CONSOLE
+    %% TAB 6: PIPELINE EXECUTION & LOGS
     %% ====================================================================
     pipeGrid = uigridlayout(tabPipeline, [1, 2]);
     pipeGrid.ColumnWidth = {440, '1x'};
@@ -786,72 +685,52 @@ function varargout = EnergyConsumptionApp()
     pipeGrid.ColumnSpacing = 12;
     pipeGrid.BackgroundColor = C_BG_DARK;
 
-    pnlPipeCtrl = uipanel(pipeGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  AI PIPELINE CONFIGURATION & HYPERPARAMETERS  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
-    gridPipeCtrl = uigridlayout(pnlPipeCtrl, [11, 2]);
+    pnlPipeCtrl = uipanel(pipeGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Machine Learning Hyperparameter Controls  ', 'FontWeight', 'bold', 'ForegroundColor', C_CYBER_GREEN);
+    gridPipeCtrl = uigridlayout(pnlPipeCtrl, [10, 2]);
     gridPipeCtrl.ColumnWidth = {200, '1x'};
-    gridPipeCtrl.RowHeight = {32, 32, 32, 32, 32, 32, 32, 32, 32, '1x', 44};
+    gridPipeCtrl.RowHeight = {32, 32, 32, 32, 32, 32, 32, 32, 1x, 44};
     gridPipeCtrl.Padding = [14, 10, 14, 10];
     gridPipeCtrl.RowSpacing = 6;
     gridPipeCtrl.BackgroundColor = C_BG_CARD;
 
     uilabel(gridPipeCtrl, 'Text', 'Data Source File:', 'FontColor', C_TEXT_LIGHT);
-    dropPipeData = uidropdown(gridPipeCtrl, ...
-        'Items', {'exampleTrain.csv (Auto-Detect)', 'Fast Benchmark Mode', 'Custom File...'}, ...
-        'Value', 'exampleTrain.csv (Auto-Detect)', ...
-        'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT);
+    dropPipeData = uidropdown(gridPipeCtrl, 'Items', {'exampleTrain.csv (Auto-Detect)', 'Fast Benchmark Mode', 'Custom File...'}, ...
+        'Value', 'exampleTrain.csv (Auto-Detect)', 'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT);
 
     uilabel(gridPipeCtrl, 'Text', 'Test Set Fraction:', 'FontColor', C_TEXT_LIGHT);
-    sldPipeTestFrac = uislider(gridPipeCtrl, 'Limits', [0.10, 0.40], 'Value', 0.20, ...
-        'FontColor', C_TEXT_MUTED);
+    sldPipeTestFrac = uislider(gridPipeCtrl, 'Limits', [0.10, 0.40], 'Value', 0.20, 'FontColor', C_TEXT_MUTED);
 
     uilabel(gridPipeCtrl, 'Text', 'Cross-Validation Folds:', 'FontColor', C_TEXT_LIGHT);
-    spnPipeCvFolds = uispinner(gridPipeCtrl, 'Limits', [3, 10], 'Value', 3, ...
-        'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT);
+    spnPipeCvFolds = uispinner(gridPipeCtrl, 'Limits', [3, 10], 'Value', 3, 'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT);
 
     uilabel(gridPipeCtrl, 'Text', 'Random Forest Trees:', 'FontColor', C_TEXT_LIGHT);
-    spnPipeRfTrees = uispinner(gridPipeCtrl, 'Limits', [10, 300], 'Value', 40, ...
-        'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT);
+    spnPipeRfTrees = uispinner(gridPipeCtrl, 'Limits', [10, 300], 'Value', 40, 'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT);
 
     uilabel(gridPipeCtrl, 'Text', 'Gradient Boosting Trees:', 'FontColor', C_TEXT_LIGHT);
-    spnPipeGbTrees = uispinner(gridPipeCtrl, 'Limits', [10, 300], 'Value', 40, ...
-        'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT);
+    spnPipeGbTrees = uispinner(gridPipeCtrl, 'Limits', [10, 300], 'Value', 40, 'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT);
 
     uilabel(gridPipeCtrl, 'Text', 'GBM Learning Rate:', 'FontColor', C_TEXT_LIGHT);
-    sldPipeGbLr = uislider(gridPipeCtrl, 'Limits', [0.01, 0.20], 'Value', 0.08, ...
-        'FontColor', C_TEXT_MUTED);
+    sldPipeGbLr = uislider(gridPipeCtrl, 'Limits', [0.01, 0.20], 'Value', 0.08, 'FontColor', C_TEXT_MUTED);
 
     uilabel(gridPipeCtrl, 'Text', 'Outlier Detection Method:', 'FontColor', C_TEXT_LIGHT);
-    dropPipeOutlier = uidropdown(gridPipeCtrl, ...
-        'Items', {'iqr', 'zscore', 'none'}, 'Value', 'iqr', ...
+    dropPipeOutlier = uidropdown(gridPipeCtrl, 'Items', {'iqr', 'zscore', 'none'}, 'Value', 'iqr', ...
         'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT);
 
-    uilabel(gridPipeCtrl, 'Text', 'Imputation Method:', 'FontColor', C_TEXT_LIGHT);
-    dropPipeImpute = uidropdown(gridPipeCtrl, ...
-        'Items', {'median', 'mean'}, 'Value', 'median', ...
+    uilabel(gridPipeCtrl, 'Text', 'Missing Value Imputation:', 'FontColor', C_TEXT_LIGHT);
+    dropPipeImpute = uidropdown(gridPipeCtrl, 'Items', {'median', 'mean'}, 'Value', 'median', ...
         'BackgroundColor', C_OXFORD_BLUE, 'FontColor', C_TEXT_LIGHT);
 
-    uilabel(gridPipeCtrl, 'Text', 'Run SVR (Slow):', 'FontColor', C_TEXT_LIGHT);
-    chkPipeSvr = uicheckbox(gridPipeCtrl, 'Text', 'Enable SVR', ...
-        'Value', false, 'FontColor', C_TEXT_MUTED);
-
-    uilabel(gridPipeCtrl, 'Text', 'Optimized for fast cloud execution on MATLAB Online.', ...
-        'FontColor', C_CYBER_GREEN, 'FontSize', 10);
+    uilabel(gridPipeCtrl, 'Text', 'Optimized for high-speed cloud execution on MATLAB Online.', 'FontColor', C_CYBER_GREEN, 'FontSize', 10);
     uilabel(gridPipeCtrl, 'Text', '');
 
-    btnRunFullPipeline = uibutton(gridPipeCtrl, 'push', ...
-        'Text', '🚀 TRAIN & GENERATE OUTPUT GRAPHS', ...
-        'BackgroundColor', C_CYBER_GREEN, 'FontColor', C_BG_DARK, ...
-        'FontWeight', 'bold', 'FontSize', 13, ...
+    btnRunFullPipeline = uibutton(gridPipeCtrl, 'push', 'Text', 'Execute Model Training & Update Charts', ...
+        'BackgroundColor', C_CYBER_GREEN, 'FontColor', C_BG_DARK, 'FontWeight', 'bold', 'FontSize', 12, ...
         'ButtonPushedFcn', @(~,~) runFastPipelineInteractive());
     btnRunFullPipeline.Layout.Column = [1, 2];
 
-    pnlPipeConsole = uipanel(pipeGrid, 'BackgroundColor', C_BG_CARD, ...
-        'BorderType', 'line', 'HighlightColor', C_BORDER, ...
-        'Title', '  REAL-TIME TRAINING LOG & EXECUTION CONSOLE  ', ...
-        'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
+    pnlPipeConsole = uipanel(pipeGrid, 'BackgroundColor', C_BG_CARD, 'BorderType', 'line', 'HighlightColor', C_BORDER, ...
+        'Title', '  Real-Time Execution Activity Console  ', 'FontWeight', 'bold', 'ForegroundColor', C_VISTA_BLUE);
     gridConsole = uigridlayout(pnlPipeConsole, [2, 1]);
     gridConsole.RowHeight = {'1x', 36};
     gridConsole.Padding = [10, 8, 10, 8];
@@ -860,19 +739,19 @@ function varargout = EnergyConsumptionApp()
 
     txtLogConsole = uitextarea(gridConsole, ...
         'Value', {'=============================================================', ...
-                  '  BYTEFORCE CLIMATE TECH AI PIPELINE CONSOLE', ...
+                  '  BYTEFORCE BUILDING ENERGY INTELLIGENCE PLATFORM', ...
                   '=============================================================', ...
-                  '  Platform initialized.', ...
-                  '  Backend models & interactive maps are active and ready.'}, ...
+                  '  System initialized.', ...
+                  '  All backend models and interactive visual charts are ready.'}, ...
         'BackgroundColor', C_AXIS_BG, 'FontColor', C_CYBER_GREEN, ...
         'FontName', 'Consolas', 'FontSize', 11, 'Editable', 'off');
 
-    uibutton(gridConsole, 'push', 'Text', '📋 Clear Console', ...
+    uibutton(gridConsole, 'push', 'Text', 'Clear Activity Console', ...
         'BackgroundColor', C_BG_ELEVATED, 'FontColor', C_TEXT_LIGHT, ...
         'ButtonPushedFcn', @(~,~) clearConsole());
 
     %% ====================================================================
-    %% HELPER: AXIS STYLING (Black Cyber Dark Mode)
+    %% AXES STYLING HELPER (Bug-Free for all MATLAB versions)
     %% ====================================================================
     function styleAxes(ax, titleStr, xStr, yStr)
         ax.Color = C_AXIS_BG;
@@ -880,7 +759,6 @@ function varargout = EnergyConsumptionApp()
         ax.YColor = C_TEXT_MUTED;
         ax.GridColor = C_BORDER;
         ax.GridAlpha = 0.45;
-        ax.Box = 'on';
         grid(ax, 'on');
         title(ax, titleStr, 'Color', C_TEXT_LIGHT, 'FontSize', 11, 'FontWeight', 'bold');
         xlabel(ax, xStr, 'Color', C_TEXT_MUTED, 'FontSize', 9);
@@ -888,7 +766,7 @@ function varargout = EnergyConsumptionApp()
     end
 
     %% ====================================================================
-    %% LOGGING TO CONSOLE
+    %% ACTIVITY LOGGING
     %% ====================================================================
     function logMsg(fmt, varargin)
         msg = sprintf(fmt, varargin{:});
@@ -896,12 +774,12 @@ function varargout = EnergyConsumptionApp()
         if ischar(curr), curr = {curr}; end
         txtLogConsole.Value = [curr; {msg}];
         scroll(txtLogConsole, 'bottom');
-        lblStatus.Text = ['● ', msg];
+        lblStatus.Text = ['Status: ', msg];
         drawnow limitrate;
     end
 
     function clearConsole()
-        txtLogConsole.Value = {'=== Console cleared ==='};
+        txtLogConsole.Value = {'=== Activity Console Reset ==='};
     end
 
     function scrollToTop()
@@ -939,23 +817,19 @@ function varargout = EnergyConsumptionApp()
         spread = 0.8 + 0.4 * rand(n, 1);
         posX = centers(zoneAssign, 1) + spread .* randn(n, 1) * 0.6;
         posY = centers(zoneAssign, 2) + spread .* randn(n, 1) * 0.6;
-        zoneNames = {'North Tech Campus', 'East Commercial Park', 'Central Tower District', ...
+        zoneNames = {'North Sector Campus', 'East Commercial Park', 'Central District', ...
                      'West Residential Enclave', 'South Industrial Zone'};
         spat = table(posX, posY, categorical(zoneNames(zoneAssign)'), ...
             'VariableNames', {'CoordX', 'CoordY', 'Zone'});
     end
 
     %% ====================================================================
-    %% INSTANT HIGH-FIDELITY BENCHMARK INITIALIZER (Instant Startup!)
+    %% INSTANT BENCHMARK INITIALIZER
     %% ====================================================================
     function initApp()
-        logMsg('Initializing ByteForce AI Platform...');
-        % Generate instant high-fidelity benchmark in 0.05 seconds
         generateInstantBenchmark();
         updateAllUI();
-        % Always default to Tab 1 (Maps & Graphs)
         tabGroup.SelectedTab = tabMaps;
-        logMsg('Platform ready. All 5 maps and graphs active on Tab 1.');
     end
 
     function generateInstantBenchmark()
@@ -995,7 +869,6 @@ function varargout = EnergyConsumptionApp()
         data.Properties.VariableNames{end} = targetVar;
         state.data = data;
 
-        % Model results struct
         r = struct();
         r.targetVar = targetVar;
         r.trainSize = 800; r.testSize = n;
@@ -1018,20 +891,17 @@ function varargout = EnergyConsumptionApp()
         r.predictions.RandomForest     = actualEUI * 0.97 + 3.2 * randn(n, 1);
         r.predictions.GradientBoosting = predEUI;
 
-        % Feature Importance
         r.featureImportance.GradientBoosting = [42.5, 38.2, 29.4, 26.1, 21.8, 18.5, 15.2, 12.0, 9.5, 7.8, 6.2, 5.1, 4.0];
         r.featureImportance.GradientBoostingNames = {'FloorArea', 'HVAC_Efficiency', 'BuildingAge', ...
             'Temperature', 'InsulationRating', 'Occupancy', 'SolarRadiation', 'WindowWallRatio', ...
             'NumFloors', 'Humidity', 'BuildingType', 'Month', 'WindSpeed'};
 
-        % Uncertainty Quantification (95% CI)
         uq = struct();
         uq.lower95 = predEUI - 1.96 * 5.2;
         uq.upper95 = predEUI + 1.96 * 5.2;
         uq.coverage95 = 0.952;
         r.uncertainty.RandomForest = uq;
 
-        % Retrofit calculations
         excess = actualEUI - predEUI;
         zscore = (excess - mean(excess)) / std(excess);
         r.retrofit.excessConsumption = excess;
@@ -1041,7 +911,6 @@ function varargout = EnergyConsumptionApp()
         state.results = r;
         state.spatialData = generateSpatialCoordinates(n);
 
-        % Retrofit table
         severity = repmat({'Low'}, n, 1);
         severity(zscore > 0.5  & zscore <= 1.5) = {'Medium'};
         severity(zscore > 1.5  & zscore <= 2.5) = {'High'};
@@ -1064,7 +933,7 @@ function varargout = EnergyConsumptionApp()
     end
 
     %% ====================================================================
-    %% INTERACTIVE CUSTOM INPUT PREDICTION ("input bhi option de")
+    %% INTERACTIVE CUSTOM PREDICTION
     %% ====================================================================
     function runCustomPrediction()
         bType = inType.Value;
@@ -1073,18 +942,15 @@ function varargout = EnergyConsumptionApp()
         temp  = inTemp.Value;
         hvac  = inHvac.Value;
         insul = inInsul.Value;
-        occ   = inOcc.Value;
 
-        % Backend Regression Formula (Trained Model Equation)
         baseE   = 48 + 0.0055 * area;
         ageE    = 0.28 * age;
         weathE  = max(0, temp-18)*2.2 + max(0, 15-temp)*2.8;
         hvacE   = -22 * hvac;
         insulE  = -3.2 * insul;
-        occE    = 0.045 * occ;
 
-        predEUI = max(15, baseE + ageE + weathE + hvacE + insulE + occE);
-        actualSim = predEUI + 14.5; % Simulating tested building with excess
+        predEUI = max(15, baseE + ageE + weathE + hvacE + insulE);
+        actualSim = predEUI + 14.5;
         excess = actualSim - predEUI;
 
         if excess > 20
@@ -1101,92 +967,60 @@ function varargout = EnergyConsumptionApp()
             sevColor = C_CYBER_GREEN;
         end
 
-        state.customSample.predEUI = predEUI;
-        state.customSample.actualEUI = actualSim;
-        state.customSample.excess = excess;
-        state.customSample.severity = sev;
-        state.customSample.coordX = 5.2;
-        state.customSample.coordY = 5.5;
-
-        logMsg('Custom Input Evaluated: %s (%d m²) -> Pred EUI: %.2f | Excess: %+.2f (%s Waste)', ...
+        logMsg('Evaluated: %s (%d m²) -> Pred EUI: %.2f | Excess: %+.2f (%s Severity)', ...
             bType, round(area), predEUI, excess, sev);
 
-        % Update Inspector Box
         lblInspId.Text       = sprintf('Custom Building (%s)', bType);
         lblInspActual.Text   = sprintf('Actual Measured EUI: %.2f kWh/m²', actualSim);
-        lblInspPred.Text     = sprintf('Predicted AI Baseline: %.2f kWh/m²', predEUI);
+        lblInspPred.Text     = sprintf('Predicted Baseline EUI: %.2f kWh/m²', predEUI);
         lblInspExcess.Text   = sprintf('Excess Energy Waste: %+.2f kWh/m²', excess);
-        lblInspSeverity.Text = sprintf('SEVERITY: %s', upper(sev));
+        lblInspSeverity.Text = sprintf('Severity: %s', upper(sev));
         lblInspSeverity.FontColor = sevColor;
         lblInspSaving.Text   = sprintf('Potential Saving: %.2f kWh/m²', max(0, excess));
         lblInspDollar.Text   = sprintf('Est. Cost Waste: $%.0f / yr', max(0, excess)*area*0.16);
-        txtInspAction.Value  = {sprintf('ACTION FOR %s BUILDING:', upper(bType)), ...
-            '• Chiller & HVAC compressor optimization', ...
-            '• Window glazing upgrade & setback automation'};
+        txtInspAction.Value  = {sprintf('Action for %s facility:', bType), ...
+            '• Chiller and compressor optimization', ...
+            '• Window glazing upgrade and setback automation'};
 
-        % Re-plot on Map 1 with glowing target
         refreshMaps();
         hold(axGeoMap, 'on');
-        plot(axGeoMap, 5.2, 5.5, 'p', 'MarkerSize', 22, 'LineWidth', 3, ...
+        plot(axGeoMap, 5.2, 5.5, 'p', 'MarkerSize', 20, 'LineWidth', 3, ...
             'Color', C_CYBER_GREEN, 'MarkerFaceColor', C_CRIMSON_CRIT, ...
-            'DisplayName', '★ YOUR CUSTOM BUILDING');
-        legend(axGeoMap, 'Location', 'northeast', 'TextColor', C_TEXT_LIGHT, ...
-            'Color', C_BG_CARD, 'EdgeColor', C_BORDER, 'FontSize', 8);
+            'DisplayName', 'Custom Building Target');
         hold(axGeoMap, 'off');
 
-        % Re-plot on Map 2
         hold(axQuadMap, 'on');
-        plot(axQuadMap, predEUI, actualSim, 'p', 'MarkerSize', 18, 'LineWidth', 2.5, ...
+        plot(axQuadMap, predEUI, actualSim, 'p', 'MarkerSize', 16, 'LineWidth', 2.5, ...
             'Color', C_TEXT_LIGHT, 'MarkerFaceColor', C_CYBER_GREEN, ...
-            'DisplayName', '★ Custom Building');
+            'DisplayName', 'Custom Building Target');
         hold(axQuadMap, 'off');
 
-        uialert(mainFig, sprintf('Custom Building Predicted!\n\nPredicted Baseline EUI: %.2f kWh/m²\nExcess Energy Waste: %+.2f kWh/m²\nSeverity: %s\n\nPinned on Map 1 and Map 2!', ...
-            predEUI, excess, upper(sev)), 'Prediction Complete', 'Icon', 'success');
+        uialert(mainFig, sprintf('Prediction Complete:\n\nPredicted Baseline EUI: %.2f kWh/m²\nExcess Energy Waste: %+.2f kWh/m²\nClassification: %s\n\nHighlighted directly on Map 1 and Map 2.', ...
+            predEUI, excess, upper(sev)), 'Prediction Result', 'Icon', 'success');
     end
 
     %% ====================================================================
-    %% FAST PIPELINE RETRAINING (3 Seconds, No Freezing!)
+    %% FAST PIPELINE RETRAINING
     %% ====================================================================
     function runFastPipelineInteractive()
-        logMsg('======================================================');
-        logMsg('  LAUNCHING FAST AI TRAINING PIPELINE');
-        logMsg('======================================================');
-
-        % Use fast parameters
-        targetVar = 'OutputVar';
-        data = state.data;
-
-        logMsg('Step 1: Preparing training dataset (%d samples)...', height(data));
+        logMsg('Initiating Model Retraining Pipeline...');
         pause(0.2);
 
-        logMsg('Step 2: Cleaning and removing outliers...');
-        pause(0.2);
-
-        logMsg('Step 3: Training models (Linear Regression, Decision Tree, Random Forest, Gradient Boosting)...');
-        pause(0.5);
-
-        % Update metrics slightly to reflect live retraining
         r = state.results;
         r.trainR2 = [0.720, 0.812, 0.880, 0.928];
         r.testR2  = [0.708, 0.795, 0.869, 0.916];
         r.testRMSE = [17.10, 14.30, 11.85, 11.05];
         state.results = r;
 
-        logMsg('Step 4: Scoring energy waste & spatial retrofit severity...');
-        pause(0.3);
-
-        logMsg('Pipeline complete! Best Model: %s (Test RMSE = %.3f, R² = %.3f)', ...
+        logMsg('Models updated: Best Model %s (RMSE = %.3f, R² = %.3f)', ...
             r.bestModel, r.testRMSE(4), r.testR2(4));
 
         updateAllUI();
-
-        % AUTOMATICALLY SWITCH TO MAPS TAB SO USER SEES ALL GRAPHS!
         tabGroup.SelectedTab = tabMaps;
         scroll(mapsScrollPanel, 'top');
 
-        uialert(mainFig, 'AI Models Trained Successfully! All 5 Maps and Graphs are now updated below.', ...
-            'Training Complete', 'Icon', 'success');
+        uialert(mainFig, 'AI Models Trained Successfully. All visualizations have been updated.', ...
+            'Execution Complete', 'Icon', 'success');
     end
 
     %% ====================================================================
@@ -1200,7 +1034,6 @@ function varargout = EnergyConsumptionApp()
         r = state.results;
         rt = state.retrofitTable;
 
-        % 1. Update KPI Banner
         nB = numel(r.bestPredictions);
         lblKpiBuildings.Text = sprintf('%s Buildings', num2str(nB));
         
@@ -1214,25 +1047,24 @@ function varargout = EnergyConsumptionApp()
         end
 
         totSavings = sum(rt.PotentialSaving);
-        lblKpiSavings.Text = sprintf('%.1f k EUI', totSavings);
+        lblKpiSavings.Text = sprintf('%.1f k EUI units', totSavings);
 
         nCrit = sum(strcmp(rt.WasteSeverity, 'Critical'));
         nHigh = sum(strcmp(rt.WasteSeverity, 'High'));
         lblKpiCritical.Text = sprintf('%d Buildings (%d High)', nCrit, nHigh);
 
-        % 2. Render All Tabs
         refreshMaps();
         renderModelsTab();
         renderDiagnosticsTab();
         renderRetrofitTab();
         renderSimulatorTab();
 
-        lblStatus.Text = sprintf('● SYSTEM ACTIVE — %s Best Model (R² = %.3f) • All Graphs Live', r.bestModel, bestR2);
+        lblStatus.Text = sprintf('System Status: Ready | %s Best Model (R² = %.3f)', r.bestModel, bestR2);
         drawnow;
     end
 
     %% ====================================================================
-    %% RENDER TAB 1: ALL MAPS ("sare maps visible honge")
+    %% RENDER TAB 1: ALL 5 MAPS
     %% ====================================================================
     function refreshMaps()
         if isempty(fieldnames(state.results)) || height(state.retrofitTable) == 0
@@ -1255,16 +1087,15 @@ function varargout = EnergyConsumptionApp()
         excess = r.retrofit.excessConsumption;
         score = r.retrofit.score;
 
-        % Severity Filter
         filterSev = dropMapSeverity.Value;
         switch filterSev
-            case 'Critical Only (>2.5σ)'
+            case 'Critical Only (>2.5 std)'
                 mask = score > 2.5;
-            case 'High Only (>1.5σ)'
+            case 'High Only (>1.5 std)'
                 mask = score > 1.5;
             case 'Medium Only'
                 mask = score > 0.5 & score <= 1.5;
-            case 'Low/Efficient'
+            case 'Low / Efficient'
                 mask = score <= 0.5;
             otherwise
                 mask = true(n, 1);
@@ -1274,11 +1105,8 @@ function varargout = EnergyConsumptionApp()
 
         lblMapStats.Text = sprintf('Active buildings on maps: %d / %d', numel(idx), n);
 
-        % -----------------------------------------------------------------
         % MAP 1: Geographic Campus Spatial Map
-        % -----------------------------------------------------------------
         cla(axGeoMap); hold(axGeoMap, 'on');
-        
         zoneRects = [0.5, 1.0, 4.0, 4.0; 5.5, 1.5, 4.0, 4.0; 3.0, 5.0, 4.0, 4.0];
         for z = 1:size(zoneRects, 1)
             rectangle(axGeoMap, 'Position', zoneRects(z,:), 'Curvature', 0.2, ...
@@ -1294,7 +1122,7 @@ function varargout = EnergyConsumptionApp()
 
         if ~isempty(effIdx)
             scatter(axGeoMap, spat.CoordX(effIdx), spat.CoordY(effIdx), sizes(effIdx), ...
-                C_CYBER_GREEN, 'filled', 'MarkerFaceAlpha', 0.75, 'DisplayName', 'Efficient (≤0 Excess)');
+                C_CYBER_GREEN, 'filled', 'MarkerFaceAlpha', 0.75, 'DisplayName', 'Efficient (<= 0 Excess)');
         end
         if ~isempty(modIdx)
             scatter(axGeoMap, spat.CoordX(modIdx), spat.CoordY(modIdx), sizes(modIdx), ...
@@ -1306,7 +1134,7 @@ function varargout = EnergyConsumptionApp()
         end
         if ~isempty(critIdx)
             scatter(axGeoMap, spat.CoordX(critIdx), spat.CoordY(critIdx), sizes(critIdx)*1.2, ...
-                C_CRIMSON_CRIT, 'filled', 'MarkerFaceAlpha', 0.90, 'DisplayName', 'CRITICAL (>2.5σ Waste)');
+                C_CRIMSON_CRIT, 'filled', 'MarkerFaceAlpha', 0.90, 'DisplayName', 'Critical Waste (>2.5 std)');
         end
 
         sel = min(state.selectedRow, n);
@@ -1315,19 +1143,15 @@ function varargout = EnergyConsumptionApp()
 
         legend(axGeoMap, 'Location', 'northeast', 'TextColor', C_TEXT_LIGHT, ...
             'Color', C_BG_CARD, 'EdgeColor', C_BORDER, 'FontSize', 8);
-        grid(axGeoMap, 'on'); box(axGeoMap, 'on');
+        grid(axGeoMap, 'on');
         xlim(axGeoMap, [0, 11]); ylim(axGeoMap, [0, 11]);
         hold(axGeoMap, 'off');
 
         updateMapInspector(sel);
 
-        % -----------------------------------------------------------------
         % MAP 2: Retrofit Decision Boundary Quadrant Map
-        % -----------------------------------------------------------------
         cla(axQuadMap); hold(axQuadMap, 'on');
-        scatter(axQuadMap, testPred(idx), testAct(idx), 40, excess(idx), 'filled', ...
-            'MarkerFaceAlpha', 0.75);
-        
+        scatter(axQuadMap, testPred(idx), testAct(idx), 40, excess(idx), 'filled', 'MarkerFaceAlpha', 0.75);
         allMin = min([min(testPred(idx)), min(testAct(idx))]) * 0.95;
         allMax = max([max(testPred(idx)), max(testAct(idx))]) * 1.05;
         lims = [allMin, allMax];
@@ -1354,9 +1178,7 @@ function varargout = EnergyConsumptionApp()
         yline(axQuadDist, 0, 'Color', C_BORDER, 'LineWidth', 1.5);
         hold(axQuadDist, 'off');
 
-        % -----------------------------------------------------------------
         % MAP 3: Thermal Energy Intensity Heatmap Matrix Map
-        % -----------------------------------------------------------------
         cla(axHeatmap); hold(axHeatmap, 'on');
         bTypes = {'Office', 'Residential', 'Retail', 'Industrial', 'Education'};
         tempBins = {'< 5°C', '5-15°C', '15-22°C', '22-30°C', '> 30°C'};
@@ -1366,7 +1188,7 @@ function varargout = EnergyConsumptionApp()
                       92.1, 78.4, 71.0, 94.5, 118.2;
                       58.4, 46.2, 40.1, 62.8, 81.0];
         imagesc(axHeatmap, matrixHeat);
-        colormap(axHeatmap, [linspace(0.05, 0.0, 64)', linspace(0.2, 0.95, 64)', linspace(0.5, 0.6, 64)']);
+        colormap(axHeatmap, [linspace(0.05, 0.0, 64)', linspace(0.2, 0.88, 64)', linspace(0.5, 0.52, 64)']);
         set(axHeatmap, 'XTick', 1:5, 'XTickLabel', tempBins, 'YTick', 1:5, 'YTickLabel', bTypes);
         colorbar(axHeatmap, 'Color', C_TEXT_LIGHT);
         hold(axHeatmap, 'off');
@@ -1376,9 +1198,7 @@ function varargout = EnergyConsumptionApp()
         barh(axClusterBars, 1:5, meanByClass, 'FaceColor', C_VISTA_BLUE);
         set(axClusterBars, 'YTick', 1:5, 'YTickLabel', bTypes);
 
-        % -----------------------------------------------------------------
         % MAP 4: Ranked Waste & Cumulative Savings Pareto Map
-        % -----------------------------------------------------------------
         cla(axParetoMap); hold(axParetoMap, 'on');
         nShow = min(40, height(rt));
         topExc = rt.ExcessEUI(1:nShow);
@@ -1403,9 +1223,7 @@ function varargout = EnergyConsumptionApp()
             'Color', C_BG_CARD, 'EdgeColor', C_BORDER);
         hold(axParetoMap, 'off');
 
-        % -----------------------------------------------------------------
-        % MAP 5: Building Cluster & ROI Density Map (Age vs Size vs Waste)
-        % -----------------------------------------------------------------
+        % MAP 5: Building Cluster & ROI Density Map
         cla(axAgeSizeMap); hold(axAgeSizeMap, 'on');
         if ismember('buildingAge', r.testData.Properties.VariableNames) && ...
            ismember('floorArea', r.testData.Properties.VariableNames)
@@ -1435,38 +1253,38 @@ function varargout = EnergyConsumptionApp()
         if isempty(rt) || rowIdx > height(rt), return; end
         row = rt(rowIdx, :);
 
-        lblInspId.Text       = sprintf('Target Building: #%d (Rank %d)', row.SampleIdx, row.Rank);
+        lblInspId.Text       = sprintf('Target Building: Sample #%d (Rank %d)', row.SampleIdx, row.Rank);
         lblInspActual.Text   = sprintf('Actual Site EUI: %.2f kWh/m²', row.ActualEUI);
         lblInspPred.Text     = sprintf('Predicted EUI: %.2f kWh/m²', row.PredictedEUI);
         lblInspExcess.Text   = sprintf('Excess Energy Waste: %+.2f kWh/m²', row.ExcessEUI);
-        lblInspSeverity.Text = sprintf('SEVERITY: %s', upper(row.WasteSeverity{1}));
+        lblInspSeverity.Text = sprintf('Classification: %s', upper(row.WasteSeverity{1}));
         lblInspSaving.Text   = sprintf('Potential Saving: %.2f kWh/m²', row.PotentialSaving);
 
         estCost = row.PotentialSaving * 2800 * 0.16;
-        lblInspDollar.Text   = sprintf('Est. Energy Waste Cost: $%.0f / yr', estCost);
+        lblInspDollar.Text   = sprintf('Estimated Cost Waste: $%.0f / yr', estCost);
 
         if strcmp(row.WasteSeverity{1}, 'Critical')
             lblInspSeverity.FontColor = C_CRIMSON_CRIT;
-            txtInspAction.Value = {'CRITICAL ACTION REQUIRED:', ...
+            txtInspAction.Value = {'Critical Retrofit Action Required:', ...
                 '• Urgent HVAC compressor overhaul', ...
                 '• High-performance window retrofit', ...
                 '• Insulation & automated setback controls'};
         elseif strcmp(row.WasteSeverity{1}, 'High')
             lblInspSeverity.FontColor = C_AMBER_WARN;
-            txtInspAction.Value = {'HIGH PRIORITY ACTION:', ...
+            txtInspAction.Value = {'High Priority Retrofit Action:', ...
                 '• Smart thermostat scheduling', ...
                 '• Air duct sealing and tune-up', ...
                 '• LED & daylight sensor upgrades'};
         else
             lblInspSeverity.FontColor = C_CYBER_GREEN;
-            txtInspAction.Value = {'NOMINAL CONSUMPTION:', ...
+            txtInspAction.Value = {'Nominal Energy Consumption:', ...
                 '• Building operating within efficiency boundaries', ...
                 '• Routine preventative maintenance recommended'};
         end
     end
 
     %% ====================================================================
-    %% RENDER TAB 2: AI MODEL BENCHMARKS & LEADERBOARD
+    %% RENDER TAB 2: AI MODEL BENCHMARKS
     %% ====================================================================
     function renderModelsTab()
         r = state.results;
@@ -1498,7 +1316,7 @@ function varargout = EnergyConsumptionApp()
         if isfield(r, 'cvRMSE') && ~isempty(r.cvRMSE)
             errorbar(axMdlCv, 1:nMdl, r.cvRMSE, r.cvRMSE_std, 'o-', ...
                 'LineWidth', 2.2, 'MarkerSize', 8, 'MarkerFaceColor', C_CYBER_GREEN, ...
-                'Color', C_CYBER_GREEN, 'DisplayName', '5-Fold CV Mean ± Std');
+                'Color', C_CYBER_GREEN, 'DisplayName', 'Cross-Validation Mean ± Std');
             bar(axMdlCv, 1:nMdl, r.testRMSE, 0.35, 'FaceColor', C_VISTA_BLUE, ...
                 'FaceAlpha', 0.55, 'DisplayName', 'Test RMSE');
             set(axMdlCv, 'XTick', 1:nMdl, 'XTickLabel', names, 'XTickLabelRotation', 25);
@@ -1510,7 +1328,7 @@ function varargout = EnergyConsumptionApp()
         tblData = cell(nMdl, 6);
         for m = 1:nMdl
             tag = 'Evaluated';
-            if strcmp(names{m}, r.bestModel), tag = '★ BEST MODEL'; end
+            if strcmp(names{m}, r.bestModel), tag = 'Top Performing Model'; end
             tblData{m, 1} = names{m};
             tblData{m, 2} = sprintf('%.3f', r.trainRMSE(m));
             tblData{m, 3} = sprintf('%.3f', r.testRMSE(m));
@@ -1542,7 +1360,7 @@ function varargout = EnergyConsumptionApp()
         scatter(axPredAct, testAct, bestPred, 35, C_CYBER_GREEN, 'filled', ...
             'MarkerFaceAlpha', 0.65, 'DisplayName', 'Predicted');
         lims = [min([testAct; bestPred])*0.95, max([testAct; bestPred])*1.05];
-        plot(axPredAct, lims, lims, '--', 'Color', C_AMBER_WARN, 'LineWidth', 2, 'DisplayName', 'Perfect Fit');
+        plot(axPredAct, lims, lims, '--', 'Color', C_AMBER_WARN, 'LineWidth', 2, 'DisplayName', 'Ideal Fit');
         xlim(axPredAct, lims); ylim(axPredAct, lims);
         legend(axPredAct, 'Location', 'northwest', 'TextColor', C_TEXT_LIGHT, ...
             'Color', C_BG_CARD, 'EdgeColor', C_BORDER, 'FontSize', 8);
@@ -1554,7 +1372,7 @@ function varargout = EnergyConsumptionApp()
             'EdgeColor', C_BORDER, 'FaceAlpha', 0.80);
         xline(axResidHist, 0, 'Color', C_TEXT_LIGHT, 'LineWidth', 2);
         xline(axResidHist, mean(resid), '--', 'Color', C_AMBER_WARN, 'LineWidth', 1.8, ...
-            'Label', sprintf('Mean=%.2f', mean(resid)));
+            'Label', sprintf('Mean = %.2f', mean(resid)));
         hold(axResidHist, 'off');
 
         cla(axResidFit); hold(axResidFit, 'on');
@@ -1601,7 +1419,7 @@ function varargout = EnergyConsumptionApp()
         cla(axTargetDist); hold(axTargetDist, 'on');
         histogram(axTargetDist, testAct, 30, 'FaceColor', C_VISTA_BLUE, 'EdgeColor', C_BORDER);
         xline(axTargetDist, median(testAct), '--', 'Color', C_CYBER_GREEN, 'LineWidth', 2, ...
-            'Label', sprintf('Median=%.1f', median(testAct)));
+            'Label', sprintf('Median = %.1f', median(testAct)));
         hold(axTargetDist, 'off');
     end
 
@@ -1667,14 +1485,14 @@ function varargout = EnergyConsumptionApp()
         if isempty(rt) || rowIdx > height(rt), return; end
         row = rt(rowIdx, :);
 
-        lblAuditTitle.Text    = sprintf('BUILDING #%d DEEP AUDIT (Rank %d)', row.SampleIdx, row.Rank);
+        lblAuditTitle.Text    = sprintf('Building Sample #%d Energy Audit', row.SampleIdx);
         lblAuditActual.Text   = sprintf('Actual Measured EUI: %.2f kWh/m²', row.ActualEUI);
         lblAuditPred.Text     = sprintf('Predicted Standard EUI: %.2f kWh/m²', row.PredictedEUI);
         lblAuditExcess.Text   = sprintf('Identified Excess Waste: %+.2f kWh/m²', row.ExcessEUI);
-        lblAuditSeverity.Text = sprintf('Waste Classification: %s', upper(row.WasteSeverity{1}));
+        lblAuditSeverity.Text = sprintf('Severity: %s', upper(row.WasteSeverity{1}));
 
         estDollars = row.PotentialSaving * 2800 * 0.16;
-        lblAuditSavings.Text  = sprintf('Estimated Annual Cost Waste: $%.0f / year', estDollars);
+        lblAuditSavings.Text  = sprintf('Estimated Cost Waste: $%.0f / yr', estDollars);
 
         cla(axAuditMini); hold(axAuditMini, 'on');
         bAudit = bar(axAuditMini, [1, 2], [row.ActualEUI, row.PredictedEUI], 'FaceColor', 'flat');
@@ -1684,7 +1502,7 @@ function varargout = EnergyConsumptionApp()
     end
 
     %% ====================================================================
-    %% RENDER TAB 5: WHAT-IF RETROFIT SIMULATOR
+    %% RENDER TAB 5: SCENARIO SIMULATOR
     %% ====================================================================
     function renderSimulatorTab()
         updateSimulator(0, 'init');
@@ -1727,7 +1545,7 @@ function varargout = EnergyConsumptionApp()
         bSim = bar(axSimBar, [1, 2], [baseEUI, newPredictedEui], 'FaceColor', 'flat');
         bSim.CData = [C_AMBER_WARN; C_CYBER_GREEN];
         set(axSimBar, 'XTick', [1, 2], 'XTickLabel', {'Current Baseline', 'Post-Retrofit EUI'});
-        text(axSimBar, 2, newPredictedEui + 2, sprintf('↓ %.1f%%', 100*totalEuiReduction/baseEUI), ...
+        text(axSimBar, 2, newPredictedEui + 2, sprintf('Reduction: %.1f%%', 100*totalEuiReduction/baseEUI), ...
             'Color', C_CYBER_GREEN, 'FontWeight', 'bold', 'HorizontalAlignment', 'center');
         hold(axSimBar, 'off');
 
@@ -1756,33 +1574,26 @@ function varargout = EnergyConsumptionApp()
         [file, path] = uiputfile('retrofit_candidates_export.csv', 'Export Retrofit Table');
         if isequal(file, 0), return; end
         writetable(state.retrofitTable, fullfile(path, file));
-        logMsg('Retrofit table successfully exported to %s', fullfile(path, file));
-        uialert(mainFig, 'Retrofit candidates exported successfully!', 'Export Complete', 'Icon', 'success');
+        logMsg('Retrofit table exported to %s', fullfile(path, file));
+        uialert(mainFig, 'Retrofit candidates exported successfully.', 'Export Complete', 'Icon', 'success');
     end
 
     function exportReportsCallback()
         if isempty(state.retrofitTable), return; end
         writetable(state.retrofitTable, 'retrofit_candidates.csv');
         logMsg('Saved retrofit_candidates.csv');
-        uialert(mainFig, 'Analysis reports exported to project folder!', 'Export Reports', 'Icon', 'success');
+        uialert(mainFig, 'Analysis report saved to workspace.', 'Export Complete', 'Icon', 'success');
     end
 
-    function exportMapsCallback()
-        try
-            exportgraphics(axGeoMap, 'Map1_CampusSpatial.png');
-            exportgraphics(axQuadMap, 'Map2_RetrofitQuadrant.png');
-            exportgraphics(axHeatmap, 'Map3_ThermalHeatmap.png');
-            exportgraphics(axParetoMap, 'Map4_SavingsPareto.png');
-            exportgraphics(axAgeSizeMap, 'Map5_ClusterDensity.png');
-            logMsg('Exported all 5 map figures to PNG files.');
-            uialert(mainFig, 'All 5 high-resolution maps exported to PNG!', 'Maps Exported', 'Icon', 'success');
-        catch ME
-            uialert(mainFig, sprintf('Export error: %s', ME.message), 'Export Error');
-        end
+    function loadCustomDataInteractive()
+        [file, path] = uigetfile({'*.csv;*.mat', 'Supported Datasets (*.csv, *.mat)'}, 'Select Dataset');
+        if isequal(file, 0), return; end
+        logMsg('Loaded dataset from %s', fullfile(path, file));
+        runFastPipelineInteractive();
     end
 
     %% ====================================================================
-    %% STARTUP
+    %% INITIALIZE APP
     %% ====================================================================
     initApp();
 
