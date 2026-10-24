@@ -5,10 +5,11 @@
 </p>
 
 <p align="center">
-  <a href="#about"><img src="https://img.shields.io/badge/Status-Cooking%20in%20Progress-ff6b6b?style=for-the-badge&logo=codeforces&logoColor=white" alt="Status"></a>
-  <a href="#tech-stack"><img src="https://img.shields.io/badge/Stack-Modern%20Full%20Stack-4dabf7?style=for-the-badge&logo=react&logoColor=white" alt="Stack"></a>
-  <a href="#license"><img src="https://img.shields.io/badge/License-MIT-51cf66?style=for-the-badge" alt="License"></a>
-  <a href="#contributing"><img src="https://img.shields.io/badge/PRs-Welcome-fcc419?style=for-the-badge&logo=github&logoColor=black" alt="PRs Welcome"></a>
+  <a href="https://github.com/shivang007-B/ByteForce"><img src="https://img.shields.io/badge/Status-Cooking%20in%20Progress-ff6b6b?style=for-the-badge&logo=codeforces&logoColor=white" alt="Status"></a>
+  <a href="https://github.com/shivang007-B/ByteForce/stargazers"><img src="https://img.shields.io/github/stars/shivang007-B/ByteForce?style=for-the-badge&color=fcc419&logo=github" alt="Stars"></a>
+  <a href="https://github.com/shivang007-B/ByteForce/network/members"><img src="https://img.shields.io/github/forks/shivang007-B/ByteForce?style=for-the-badge&color=4dabf7&logo=github" alt="Forks"></a>
+  <a href="https://github.com/shivang007-B/ByteForce/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-51cf66?style=for-the-badge" alt="License"></a>
+  <a href="https://github.com/shivang007-B/ByteForce/pulls"><img src="https://img.shields.io/badge/PRs-Welcome-20c997?style=for-the-badge&logo=github&logoColor=white" alt="PRs Welcome"></a>
 </p>
 
 <p align="center">
@@ -78,7 +79,7 @@ Follow this recipe to get ByteForce running locally on your machine:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/ByteForce.git
+git clone https://github.com/shivang007-B/ByteForce.git
 cd ByteForce
 ```
 
@@ -124,6 +125,6 @@ This project is open-source and distributed under the [MIT License](LICENSE). Fe
 ---
 
 <p align="center">
-  Crafted with ❤️ and ☕ by <strong>ByteForce Team</strong><br>
+  Crafted with ❤️ and ☕ by <a href="https://github.com/shivang007-B"><strong>shivang007-B</strong></a> & the <strong>ByteForce Team</strong><br>
   <sub>"Keep cooking, keep coding."</sub>
 </p>
