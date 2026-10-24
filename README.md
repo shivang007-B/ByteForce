@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <strong>ByteForce</strong> is an all-in-one digital workshop where visionary UI/UX design meets robust full-stack engineering. We don't just write code — <em>we cook up bespoke digital experiences</em>.
+  <strong>ByteForce ss </strong> is an all-in-one digital workshop where visionary UI/UX design meets robust full-stack engineering. We don't just write code — <em>we cook up bespoke digital experiences</em>.
 </p>
 
 ---
