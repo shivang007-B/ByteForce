@@ -1,141 +1,117 @@
-# ⚡ ByteForce
+# CL-03 — Predicting Energy Consumption for a Building
 
-<p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=1,11,21&height=220&section=header&text=ByteForce&fontSize=70&fontAlignY=35&desc=Designing%20%E2%80%A2%20Developing%20%E2%80%A2%20Cooking%20Up%20Digital%20Masterpieces%20%F0%9F%8D%B3&descAlignY=58&descAlign=50" alt="ByteForce Banner" width="100%" />
-</p>
-
-<p align="center">
-  <a href="https://github.com/shivang007-B/ByteForce"><img src="https://img.shields.io/badge/Status-Cooking%20in%20Progress-ff6b6b?style=for-the-badge&logo=codeforces&logoColor=white" alt="Status"></a>
-  <a href="https://github.com/shivang007-B/ByteForce/stargazers"><img src="https://img.shields.io/github/stars/shivang007-B/ByteForce?style=for-the-badge&color=fcc419&logo=github" alt="Stars"></a>
-  <a href="https://github.com/shivang007-B/ByteForce/network/members"><img src="https://img.shields.io/github/forks/shivang007-B/ByteForce?style=for-the-badge&color=4dabf7&logo=github" alt="Forks"></a>
-  <a href="https://github.com/shivang007-B/ByteForce/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-51cf66?style=for-the-badge" alt="License"></a>
-  <a href="https://github.com/shivang007-B/ByteForce/pulls"><img src="https://img.shields.io/badge/PRs-Welcome-20c997?style=for-the-badge&logo=github&logoColor=white" alt="PRs Welcome"></a>
-</p>
-
-<p align="center">
-  <strong>ByteForce ss </strong> is an all-in-one digital workshop where visionary UI/UX design meets robust full-stack engineering. We don't just write code — <em>we cook up bespoke digital experiences</em>.
-</p>
+**MathWorks Climate Tech Hackathon**
 
 ---
 
-## 🏢 Hackathon Challenge: Predicting Building Energy Consumption
+## Problem Statement
 
-This repository includes the codebase and challenge resources for **Predicting Building Energy Consumption with MATLAB®**:
-- 📘 **Challenge Details & Instructions:** [CHALLENGE_README.md](CHALLENGE_README.md)
-- 📊 **Starter Code:** [BuildingRegressionModels.m](BuildingRegressionModels.m)
-- 📋 **Instructions & Guidelines:** [Instructions & Challenge Overview.pdf](Instructions%20&%20Challenge%20Overview.pdf)
-- 📑 **Evaluation Rubric:** [Scoring Rubric.pdf](Scoring%20Rubric.pdf)
-- 📦 **Dataset Archive:** [exampleTrain.zip](exampleTrain.zip)
+Build an AI model that predicts a building's energy consumption from its characteristics, local weather, and other information. Use the predictions to identify buildings that are likely **wasting energy** and are strong candidates for **retrofitting**.
 
 ---
 
-## 🍽️ The ByteForce Philosophy
+## Project Structure
 
-> *"Code is our recipe, design is our plating, and performance is our flavor."*
-
-ByteForce bridges the gap between raw functional engineering and eye-catching aesthetics. Whether designing fluid, interactive web interfaces or building scalable backend architectures, every line is crafted with culinary precision.
-
----
-
-## ✨ Features & Flavors
-
-| Pillar | Focus | Highlights |
-| :--- | :--- | :--- |
-| 🎨 **Designable UI** | Visual Excellence | Micro-animations, responsive glassmorphism, fluid typography, dark/light aesthetics |
-| ⚡ **Modern Dev Engine** | High Performance | Component-driven architecture, lightning-fast build tooling, SEO-ready markup |
-| 🍳 **The Creative Kitchen** | Innovation Lab | Interactive widgets, modular design system, experimental interfaces |
-| 🛡️ **Clean Architecture** | Scalability | Maintainable directory structure, clean separation of concerns, test coverage |
+| File | Purpose |
+|---|---|
+| `EnergyConsumptionPipeline.m` | **Main script** — run this to execute the full pipeline |
+| `BuildingRegressionModels.m` | Core ML function: trains models, evaluates performance, scores retrofit candidates |
+| `HelperDataPreprocessing.m` | Data cleaning, imputation, outlier removal |
+| `HelperAnalyzeResults.m` | Prints performance tables, overfitting checks, feature importance |
+| `HelperVisualize.m` | Generates 8 figures covering performance, residuals, uncertainty, and retrofit maps |
+| `HelperRetrofitAnalysis.m` | Ranks buildings by excess energy use, estimates potential savings |
+| `exampleTrain.zip` | Sample dataset (extract to get `exampleTrain.csv`) |
 
 ---
 
-## 🥘 Ingredients (Tech Stack)
+## Quick Start
 
-### **The Front of House (UI/UX)**
-- **Design & Prototyping:** Figma, Tailwind / Modern Vanilla CSS, CSS Grid/Flexbox
-- **Frontend Core:** HTML5, Modern JavaScript (ESNext), React / Vite
-- **Icons & Visuals:** Lucide Icons, Custom SVGs, Google Fonts
+1. **Extract the dataset**
+   ```
+   Unzip exampleTrain.zip → exampleTrain.csv
+   ```
 
-### **The Kitchen (Backend & Logic)**
-- **Runtime & Environment:** Node.js / Bun
-- **API Architecture:** RESTful & GraphQL endpoints
-- **Data Persistence:** PostgreSQL / SQLite / MongoDB
+2. **Run the pipeline in MATLAB**
+   ```matlab
+   EnergyConsumptionPipeline
+   ```
 
-### **The Prep Station (DevOps & Tooling)**
-- **Version Control:** Git & GitHub
-- **Package Management:** `npm` / `pnpm`
-- **Linting & Formatting:** ESLint, Prettier
+3. **Outputs produced**
+   - `energy_results.mat` — all trained models and metrics
+   - `retrofit_candidates.csv` — ranked table of buildings to retrofit
+   - `model_predictions.csv` — actual vs predicted for all models
+   - 8 figure windows with visualisations
 
 ---
 
-## 📂 Project Structure
+## Dataset
 
-```text
-ByteForce/
-├── 📁 assets/             # Media, brand assets, and generated visuals
-├── 📁 src/                # Source code
-│   ├── 📁 components/     # Reusable UI building blocks
-│   ├── 📁 styles/         # Global design tokens and themes
-│   ├── 📁 utils/          # Helper functions and utilities
-│   └── index.html         # Application entry point
-├── .gitignore             # Standard git exclusions
-├── package.json           # Project manifest and dependencies
-└── README.md              # Project documentation (You are here!)
+The sample data is from the **WiDS Datathon 2022** (based on the ASHRAE Great Energy Predictor III challenge). It contains 75,757 buildings with 63 anonymised features and a site Energy Use Intensity (EUI) target.
+
+For the full challenge, also consider:
+- [Building Data Genome Project 2](https://github.com/buds-lab/building-data-genome-project-2)
+- [ASHRAE Great Energy Predictor III (Kaggle)](https://www.kaggle.com/c/ashrae-energy-prediction)
+
+---
+
+## Models Trained
+
+| Model | Key Strengths |
+|---|---|
+| Linear Regression | Baseline; interpretable coefficients |
+| Decision Tree (pruned) | Handles non-linearity; visually explainable |
+| **Random Forest** | Best generalisation; provides 95% prediction intervals |
+| **Gradient Boosting** | Highest accuracy; best feature importance scores |
+| SVR *(optional)* | Enable via `mdlOpts.RunSVR = true` |
+
+---
+
+## Key Design Decisions
+
+### Generalisation to Unseen Buildings
+When a `BuildingID` column is present, the train/test split and cross-validation folds are made at the **building level** — no building appears in both sets. This directly addresses the core challenge requirement.
+
+### Uncertainty Quantification
+For **Random Forest**, the standard deviation across individual tree predictions is used as a proxy for uncertainty, producing 95% prediction intervals. Coverage (fraction of actuals inside the interval) is reported.
+
+### Explaining Drivers
+Feature importances are extracted from the best tree ensemble (Gradient Boosting preferred, Random Forest fallback) and visualised as a ranked bar chart.
+
+### Identifying Energy Waste
+Each test building receives an **excess consumption score**:
+```
+excess = actual EUI − predicted EUI
+```
+Buildings with high excess are consuming more than expected given their size, age, and weather. These are ranked and classified as *Low / Medium / High / Critical* retrofit candidates.
+
+---
+
+## Configuration
+
+Edit the options block at the top of `EnergyConsumptionPipeline.m`:
+
+```matlab
+mdlOpts.TestFraction = 0.20;   % fraction held out for test
+mdlOpts.CVFolds      = 5;      % cross-validation folds
+mdlOpts.NTreesRF     = 100;    % Random Forest size
+mdlOpts.NTreesGB     = 100;    % Gradient Boosting rounds
+mdlOpts.LearnRateGB  = 0.05;   % GBM learning rate
+mdlOpts.RunSVR       = false;  % set true to include SVR
 ```
 
 ---
 
-## 🚀 Quick Start (Preparation Steps)
+## Requirements
 
-Follow this recipe to get ByteForce running locally on your machine:
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/shivang007-B/ByteForce.git
-cd ByteForce
-```
-
-### 2. Install Ingredients
-```bash
-npm install
-```
-
-### 3. Heat Up the Dev Server
-```bash
-npm run dev
-```
-
-Visit [`http://localhost:5173`](http://localhost:5173) in your browser to inspect the kitchen in real-time.
+- MATLAB R2020b or later
+- Statistics and Machine Learning Toolbox
 
 ---
 
-## 📜 The Roadmap (The Tasting Menu)
+## Output Files
 
-- [x] 🥣 **Appetizer:** Project blueprint, brand identity, and Initial Commit README
-- [ ] 🥗 **Entrée:** Core design system tokens, typography rules, and theme switcher
-- [ ] 🍲 **Main Course:** Responsive interactive components and dynamic page layouts
-- [ ] 🍰 **Dessert:** Production deployment, performance optimization, and lighthouse 100/100 score
-
----
-
-## 🤝 Contributing
-
-Got an appetite for building great software? Contributions, ideas, and feature requests are welcome!
-
-1. **Fork the Kitchen:** Fork this repository to your own account
-2. **Create a Branch:** `git checkout -b feature/tasty-addition`
-3. **Commit Your Flavors:** `git commit -m "feat: add delicious new component"`
-4. **Push to GitHub:** `git push origin feature/tasty-addition`
-5. **Open a Pull Request:** Describe your changes and let's review!
-
----
-
-## 📄 License
-
-This project is open-source and distributed under the [MIT License](LICENSE). Feel free to use, modify, and build upon it.
-
----
-
-<p align="center">
-  Crafted with ❤️ and ☕ by <a href="https://github.com/shivang007-B"><strong>shivang007-B</strong></a> & the <strong>ByteForce Team</strong><br>
-  <sub>"Keep cooking, keep coding."</sub>
-</p>
+| File | Contents |
+|---|---|
+| `energy_results.mat` | `trainedModels`, `results`, `retrofitTable` structs |
+| `retrofit_candidates.csv` | Ranked buildings with excess EUI, severity, potential savings |
+| `model_predictions.csv` | Actual EUI vs per-model predictions for test set |
