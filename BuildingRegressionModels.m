@@ -130,7 +130,11 @@ if hasBID
     end
     cvType = 'building-level';
 else
-    cvFolds = crossvalind('Kfold', height(trainData), K);
+    if exist('crossvalind', 'file') == 2
+        cvFolds = crossvalind('Kfold', height(trainData), K);
+    else
+        cvFolds = mod(randperm(height(trainData))-1, K) + 1;
+    end
     cvType  = 'row-level';
 end
 vlog('CV: %d-fold %s\n', K, cvType);

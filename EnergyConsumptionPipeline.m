@@ -157,8 +157,8 @@ fprintf('=========================================================\n');
 function data = loadData(csvFile, targetVar)
 % Try several sources in order of preference.
 
-    % 1. CSV in working directory
-    candidates = {csvFile, 'train.csv', 'building_energy_data.csv'};
+    % 1. CSV in working directory or extracted folder
+    candidates = {csvFile, fullfile('exampleTrain_extracted', 'exampleTrain.csv'), 'train.csv', 'building_energy_data.csv'};
     for i = 1:numel(candidates)
         if exist(candidates{i}, 'file')
             fprintf('  Reading %s ...\n', candidates{i});

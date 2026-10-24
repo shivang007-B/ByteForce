@@ -14,33 +14,46 @@ Build an AI model that predicts a building's energy consumption from its charact
 
 | File | Purpose |
 |---|---|
-| `EnergyConsumptionPipeline.m` | **Main script** — run this to execute the full pipeline |
+| `EnergyConsumptionApp.m` | ⚡ **Outstanding Cyber-Themed Frontend App** (All maps, scrollable explorer, simulator, controls) |
+| `RunApp.m` | 🚀 **One-Click App Launcher** — run `RunApp` in MATLAB to start UI |
+| `EnergyConsumptionPipeline.m` | **Pipeline script** — backend headless execution |
 | `BuildingRegressionModels.m` | Core ML function: trains models, evaluates performance, scores retrofit candidates |
 | `HelperDataPreprocessing.m` | Data cleaning, imputation, outlier removal |
 | `HelperAnalyzeResults.m` | Prints performance tables, overfitting checks, feature importance |
 | `HelperVisualize.m` | Generates 8 figures covering performance, residuals, uncertainty, and retrofit maps |
 | `HelperRetrofitAnalysis.m` | Ranks buildings by excess energy use, estimates potential savings |
-| `exampleTrain.zip` | Sample dataset (extract to get `exampleTrain.csv`) |
+| `exampleTrain.csv` | Sample dataset (WiDS 2022 / ASHRAE) |
 
 ---
 
-## Quick Start
+## Quick Start (Frontend App & Pipeline)
 
-1. **Extract the dataset**
-   ```
-   Unzip exampleTrain.zip → exampleTrain.csv
-   ```
+### Option A: Launch Interactive Frontend App (Recommended)
+In the MATLAB Command Window, simply run:
+```matlab
+RunApp
+% or
+EnergyConsumptionApp
+```
+This opens the full **ByteForce Cyber AI Command Center** featuring:
+- **Black Cyber + Oxford Blue + Vista Blue + Cyber Green** high-contrast UI
+- **Scrollable Map Explorer** with all 5 energy & retrofit maps visible
+- **AI Model Benchmarks & Leaderboard**
+- **Deep Model Diagnostics & Explainability**
+- **Interactive Retrofit Candidates Directory** with search & filters
+- **What-If Retrofit Simulator** for live carbon & cost abatement calculations
+- **Live Pipeline Controls & Real-Time Console**
 
-2. **Run the pipeline in MATLAB**
-   ```matlab
-   EnergyConsumptionPipeline
-   ```
+### Option B: Run Headless Backend Pipeline
+```matlab
+EnergyConsumptionPipeline
+```
 
-3. **Outputs produced**
-   - `energy_results.mat` — all trained models and metrics
-   - `retrofit_candidates.csv` — ranked table of buildings to retrofit
-   - `model_predictions.csv` — actual vs predicted for all models
-   - 8 figure windows with visualisations
+### Outputs Produced
+- `energy_results.mat` — trained models, validation results, retrofit scores
+- `retrofit_candidates.csv` — ranked table of buildings to retrofit
+- `model_predictions.csv` — actual vs predicted for all models
+- Interactive frontend dashboards and exported PNG maps
 
 ---
 
