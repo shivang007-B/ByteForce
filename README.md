@@ -18,6 +18,17 @@
 
 ---
 
+## 🏢 Hackathon Challenge: Predicting Building Energy Consumption
+
+This repository includes the codebase and challenge resources for **Predicting Building Energy Consumption with MATLAB®**:
+- 📘 **Challenge Details & Instructions:** [CHALLENGE_README.md](CHALLENGE_README.md)
+- 📊 **Starter Code:** [BuildingRegressionModels.m](BuildingRegressionModels.m)
+- 📋 **Instructions & Guidelines:** [Instructions & Challenge Overview.pdf](Instructions%20&%20Challenge%20Overview.pdf)
+- 📑 **Evaluation Rubric:** [Scoring Rubric.pdf](Scoring%20Rubric.pdf)
+- 📦 **Dataset Archive:** [exampleTrain.zip](exampleTrain.zip)
+
+---
+
 ## 🍽️ The ByteForce Philosophy
 
 > *"Code is our recipe, design is our plating, and performance is our flavor."*
